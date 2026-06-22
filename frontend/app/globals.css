@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream:       #FAFAF7;
+  --color-cream-2:     #F2EDE4;
+  --color-blue:        #0046FF;
+  --color-blue-soft:   #E6EEFF;
+  --color-orange:      #FF9013;
+  --color-orange-soft: #FFF3E6;
+  --color-navy:        #0F172A;
+  --color-slate:       #475569;
+  --color-muted:       #94A3B8;
+  --color-border:      #E2E8F0;
+
+  /* aliases for existing components */
+  --color-canvas:   #FAFAF7;
+  --color-surface:  #F2EDE4;
+  --color-primary:  #0F172A;
+  --color-secondary:#475569;
+  --color-hover:    #F2EDE4;
+
+  /* Six Minds */
+  --color-fact-accent:  #64748B;
+  --color-fact-bg:      #F1F5F9;
+  --color-feel-accent:  #DC2626;
+  --color-feel-bg:      #FEF2F2;
+  --color-risk-accent:  #374151;
+  --color-risk-bg:      #F9FAFB;
+  --color-gain-accent:  #D97706;
+  --color-gain-bg:      #FFFBEB;
+  --color-wild-accent:  #16A34A;
+  --color-wild-bg:      #F0FDF4;
+  --color-merge-accent: #0046FF;
+  --color-merge-bg:     #E6EEFF;
+
+  /* Functional */
+  --color-success:  #16A34A;
+  --color-warning:  #D97706;
+  --color-conflict: #DC2626;
+  --color-emergent: #16A34A;
+
+  --font-sans:  var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:  var(--font-mono-jetbrains), ui-monospace, monospace;
+  --font-serif: var(--font-playfair), Georgia, serif;
+}
+
+:root {
+  --background: #FAFAF7;
+  --foreground: #0F172A;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+html { scroll-behavior: smooth; }
+
+@keyframes emergent-pulse {
+  0%,100% { box-shadow: 0 0 8px 2px rgba(22,163,74,0.2); }
+  50%      { box-shadow: 0 0 20px 6px rgba(22,163,74,0.35); }
+}
+.emergent-glow { animation: emergent-pulse 2.5s ease-in-out infinite; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #FAFAF7; }
+::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 2px; }
