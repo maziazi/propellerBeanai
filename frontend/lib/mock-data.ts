@@ -320,6 +320,304 @@ export const MOCK_GRAPH_EDGES: GraphEdge[] = [
   { id: 'e14', source: 'feel1', target: 'merge1', type: 'solid', mindKey: 'feel' },
 ]
 
+const BALI_RESTAURANT_RESULTS: Record<string, MindResult> = {
+  fact: {
+    mindKey: 'fact',
+    content: `Bali's F&B sector generated **$1.2B** in revenue in 2023, driven by 6M+ annual tourists. Key benchmarks:
+
+- Average restaurant break-even: 12–18 months in Seminyak/Canggu; 18–24 months in Ubud
+- Foreign-owned restaurants must use a PT PMA structure (minimum IDR 10B investment) or partner with a local nominee
+- Staff costs are 18–22% of revenue vs. 28–32% in Western markets; prime-location rent runs $3–8K USD/month
+- Social media (Instagram/TikTok) drives 60%+ of first-visit traffic for Bali restaurants`,
+    sources: [
+      { title: 'Bali Tourism Board Report 2023', url: '#', verified: true },
+      { title: 'KPMG Indonesia F&B Outlook', url: '#', verified: true },
+    ],
+    isExpanded: true,
+  },
+  feel: {
+    mindKey: 'feel',
+    content: `The romantic pull of Bali is real — the idea of building something beautiful in a place you love carries genuine energy. But notice if the *location* is doing more emotional work than the *business* in your mind.
+
+Ask yourself: would this restaurant excite you if it were in your home city? If yes, Bali is a bonus. If no, that's a signal worth sitting with.`,
+    sources: [],
+    isExpanded: false,
+  },
+  risk: {
+    mindKey: 'risk',
+    content: `**Critical risks:**
+
+1. **Legal structure (High)** — Foreign restaurant ownership requires PT PMA or a local nominee arrangement. Nominee structures have collapsed businesses overnight; PT PMA costs $20–40K to set up.
+2. **Seasonality (Medium-High)** — Revenue drops 40–60% during rainy season (Nov–Mar). Runway must cover 2+ slow seasons before declaring product-market fit.
+3. **Competition (High)** — Canggu/Seminyak have 800+ restaurants; standing out requires a differentiated concept, not just good food.
+4. **Staff dependency** — Key staff poaching is rampant; losing a head chef can tank a restaurant in Bali's social-media-driven market.`,
+    sources: [
+      { title: 'Expat Business Indonesia Guide', url: '#', verified: true },
+    ],
+    isExpanded: false,
+  },
+  gain: {
+    mindKey: 'gain',
+    content: `Genuine upside exists if positioned correctly:
+
+- **Digital-native concept** — A restaurant built for content (aesthetic, unique menu, shareable moments) can reach 100K+ followers within 6 months, driving low-CAC foot traffic.
+- **Catering + delivery** — Bali's villa economy means catering contracts ($2–5K/event) can provide revenue stability outside walk-in traffic.
+- **Brand export value** — A successful Bali concept can franchise or license to Jakarta, Singapore, or Dubai within 3 years. Location is a brand asset.`,
+    sources: [],
+    isExpanded: false,
+  },
+  wild: {
+    mindKey: 'wild',
+    content: `**Contrarian angle:** Don't open a restaurant. Open a *ghost kitchen + content studio* first.
+
+Rent a licensed commercial kitchen ($800–1,500/month), build the brand on delivery platforms (GoFood, GrabFood) and Instagram for 6 months. If you hit 500+ orders/month, you've validated demand — then sign a prime retail lease with real data in hand.
+
+Cost to validate: ~$15K. Cost to fail at a full restaurant: $80–200K.`,
+    sources: [],
+    isExpanded: false,
+  },
+  merge: {
+    mindKey: 'merge',
+    content: `**Synthesis — Confidence: 61%**
+
+The opportunity is real but the execution dependencies are high. Recommendation: **WAIT → VALIDATE first.**
+
+1. Resolve the legal structure before anything else (PT PMA vs. nominee — get a lawyer).
+2. Run a 3-month pop-up or ghost kitchen to test the concept with real customers.
+3. Ensure 24 months of operating runway minimum, accounting for 2 slow seasons.
+4. Identify a local business partner who understands the regulatory and cultural landscape.
+
+**Verdict: WAIT** — the conditions for success are achievable, but skipping the validation steps has killed more Bali restaurants than bad food has.`,
+    sources: [],
+    isExpanded: true,
+  },
+}
+
+const QUIT_JOB_RESULTS: Record<string, MindResult> = {
+  fact: {
+    mindKey: 'fact',
+    content: `Labour market context for career transitions:
+
+- Average job search duration: 3–6 months for mid-level roles; 6–12 months for senior/executive
+- 68% of people who quit without a next role secured report regretting the timing within 90 days (LinkedIn Workforce Insights 2023)
+- Financial buffer recommendation: 6 months of expenses minimum; 12 months for roles requiring portfolio/client development
+- Quit-without-offer candidates receive 8% lower salary offers on average due to perceived reduced leverage`,
+    sources: [
+      { title: 'LinkedIn Workforce Insights 2023', url: '#', verified: true },
+    ],
+    isExpanded: true,
+  },
+  feel: {
+    mindKey: 'feel',
+    content: `If you're asking this question, the answer is already forming. The body knows before the mind catches up — and persistent job dissatisfaction reads as a serious signal, not background noise.
+
+The real question: is this *I need a break* (solvable with PTO) or *this chapter is over* (requires action)? The distinction matters enormously for what comes next.`,
+    sources: [],
+    isExpanded: false,
+  },
+  risk: {
+    mindKey: 'risk',
+    content: `**Top risks of quitting without a plan:**
+
+1. **Financial pressure** shortens your search timeline and forces you to accept the first offer rather than the right one.
+2. **Narrative gap** — interviewers will ask why you left. "I needed a break" is harder to position than "I was recruited" or "I left to pursue X."
+3. **Benefits cliff** — health insurance, vesting schedules, and deferred compensation often have departure-timing implications worth calculating precisely.`,
+    sources: [],
+    isExpanded: false,
+  },
+  gain: {
+    mindKey: 'gain',
+    content: `Leaving a misaligned role has measurable upsides:
+
+- **Salary premium** — role changers who quit intentionally for a specific next step earn 15–20% more on average than those who stay and wait for internal promotions.
+- **Mental clarity** — 3–6 months of runway allows genuine exploration rather than reactive job searching.
+- **Network activation** — resigning often unlocks candid conversations and referrals that colleagues can't offer while you're still employed.`,
+    sources: [],
+    isExpanded: false,
+  },
+  wild: {
+    mindKey: 'wild',
+    content: `**Unexpected option: engineer your exit.**
+
+Instead of quitting, negotiate a severance package. Many employers — especially at larger companies — will agree to a 1–3 month paid transition if approached professionally. You get the financial buffer without the "I quit" narrative disadvantage.
+
+Alternatively: take the next offer while still employed, then give notice. The "never unemployed" stat is worth protecting if your target roles are competitive.`,
+    sources: [],
+    isExpanded: false,
+  },
+  merge: {
+    mindKey: 'merge',
+    content: `**Synthesis — Confidence: 55%**
+
+The confidence score is intentionally moderate — this decision depends heavily on variables unique to your situation: financial runway, family obligations, industry, and what specifically you'd be moving toward.
+
+**Conditional recommendation:**
+- If runway ≥ 12 months AND you have a clear target direction: **GO** — quit and pursue intentionally.
+- If runway < 6 months OR no clear next step: **WAIT** — search while employed, leave with leverage.
+- If burned out to the point of affecting performance: **GO** — the cost of staying may exceed the cost of leaving.`,
+    sources: [],
+    isExpanded: true,
+  },
+}
+
+const NEW_PRODUCT_Q3_RESULTS: Record<string, MindResult> = {
+  fact: {
+    mindKey: 'fact',
+    content: `Product launch timing benchmarks:
+
+- Q3 launches (Jul–Sep) perform 12% better in B2B markets due to budget allocation cycles; Q4 is peak for B2C/consumer
+- Average time from "launch decision" to "market-ready" for a new product line: 4–9 months for established companies
+- 73% of product launches that miss their initial timeline do so due to scope creep in the final 6 weeks (Pragmatic Institute 2023)
+- Cross-sell rate to existing customers within 90 days of new line launch: 18–28% (best quartile achieves 40%+)`,
+    sources: [
+      { title: 'Pragmatic Institute Product Launch Report 2023', url: '#', verified: true },
+    ],
+    isExpanded: true,
+  },
+  feel: {
+    mindKey: 'feel',
+    content: `Q3 timelines often carry urgency that's externally imposed — a fiscal year calendar, a competitor move, or a leadership directive. Check whether the Q3 date is *strategically chosen* or *inherited*.
+
+If the team feels rushed, that signal is data. Launches that feel forced to the people building them tend to arrive underprepared.`,
+    sources: [],
+    isExpanded: false,
+  },
+  risk: {
+    mindKey: 'risk',
+    content: `**Key launch risks:**
+
+1. **Cannibalization** — new line may pull revenue from existing products without growing total market share. Validate incremental vs. substitution demand first.
+2. **Operational readiness** — supply chain, support documentation, and sales training are the most common late-breaking gaps; audit these now, not 2 weeks before launch.
+3. **Channel conflict** — if you sell through partners/distributors, a new line may disrupt existing relationships if not communicated carefully.`,
+    sources: [],
+    isExpanded: false,
+  },
+  gain: {
+    mindKey: 'gain',
+    content: `Upside of a successful Q3 launch:
+
+- **Cross-sell multiplier** — existing customers are your cheapest acquisition channel; a complementary product line can grow ARPU 25–40% without incremental CAC.
+- **Competitive positioning** — a Q3 launch lands before end-of-year budget freezes, giving enterprise customers a window to adopt before fiscal close.
+- **Talent signal** — launching new products attracts product-focused talent who want to build, not just maintain.`,
+    sources: [],
+    isExpanded: false,
+  },
+  wild: {
+    mindKey: 'wild',
+    content: `**Unexpected angle: launch to one customer first.**
+
+Instead of a full market launch, do a private beta with your single most strategic existing customer. They co-design it, you ship faster with tighter scope, and you get a case study + testimonial before the public announcement.
+
+This cuts launch risk by 60%, compresses the feedback loop from months to weeks, and turns your customer into an advocate rather than a prospect.`,
+    sources: [],
+    isExpanded: false,
+  },
+  merge: {
+    mindKey: 'merge',
+    content: `**Synthesis — Confidence: 82%**
+
+The data supports a Q3 launch — market timing is favorable and the cross-sell opportunity with existing customers is the clearest near-term value driver.
+
+**Conditions for GO:**
+1. Confirm operational readiness (support, supply chain, sales training) with a 6-week pre-launch audit.
+2. Define success metrics now — revenue target, activation rate, and NPS — so the launch isn't declared successful by default.
+3. Protect scope: freeze features 4 weeks before launch date and enforce it.
+
+**Verdict: GO** — with disciplined scope management and an existing-customer-first rollout strategy.`,
+    sources: [],
+    isExpanded: true,
+  },
+}
+
+const HIRE_VS_OUTSOURCE_RESULTS: Record<string, MindResult> = {
+  fact: {
+    mindKey: 'fact',
+    content: `Engineering team composition benchmarks:
+
+- Fully-loaded cost of a mid-level software engineer (US): $180–250K/year including salary, benefits, equipment, and overhead
+- Offshore outsourcing rates: $40–80/hr for Eastern Europe; $25–50/hr for Southeast Asia; $150–250/hr for top-tier US agencies
+- Time to productivity for new hires: 3–6 months to full contribution; outsourced teams with context: 4–8 weeks
+- Companies that outsource >40% of engineering typically report coordination overhead of 15–25% of engineering manager time`,
+    sources: [
+      { title: 'Radford Global Tech Survey 2023', url: '#', verified: true },
+      { title: 'Accelerance Global Outsourcing Report', url: '#', verified: true },
+    ],
+    isExpanded: true,
+  },
+  feel: {
+    mindKey: 'feel',
+    content: `The "hire vs. outsource" question often carries an underlying tension between *wanting to build a team* (identity, culture, long-term investment) and *needing to ship now* (speed, flexibility, cost).
+
+Both impulses are valid. Be honest about which one is driving this decision — the answer should change based on where you are in the product lifecycle.`,
+    sources: [],
+    isExpanded: false,
+  },
+  risk: {
+    mindKey: 'risk',
+    content: `**Risks of each path:**
+
+*Hiring 5 engineers:*
+- 6–9 month hiring timeline means delayed output now; each mis-hire costs 1.5–2x annual salary to recover
+- Permanent headcount increases burn rate permanently; hard to reverse in a downturn
+
+*Outsourcing:*
+- Knowledge concentration risk — critical IP sits with a vendor who could churn or raise rates
+- Quality variance is high; the best outsourcing firms have 6–12 month waitlists
+- Context switching overhead is often underestimated by 2–3x`,
+    sources: [],
+    isExpanded: false,
+  },
+  gain: {
+    mindKey: 'gain',
+    content: `**Case for a hybrid approach:**
+
+- Outsource well-scoped, non-core work (DevOps, QA, frontend execution) to compress timelines by 3–4 months
+- Hire 2–3 senior engineers for core product/architecture — people who own the system long-term
+- Use the outsourcing period to define standards and culture before scaling internal headcount
+
+This hybrid typically delivers 70% of the speed of full outsourcing at 40% of the knowledge-loss risk.`,
+    sources: [],
+    isExpanded: false,
+  },
+  wild: {
+    mindKey: 'wild',
+    content: `**Contrarian take: hire one Staff engineer instead of five mid-levels.**
+
+One exceptional engineer with system design experience can out-produce a team of five generalists when the bottleneck is architecture decisions, not execution capacity.
+
+They also mentor your existing team, compress your technical debt, and signal to future candidates that you hire for quality. The multiplier effect takes 90 days to materialize but compounds for years.`,
+    sources: [],
+    isExpanded: false,
+  },
+  merge: {
+    mindKey: 'merge',
+    content: `**Synthesis — Confidence: 68%**
+
+Neither pure hiring nor pure outsourcing is optimal. The data points to a **hybrid approach phased over 12 months**.
+
+**Recommended path:**
+1. **Months 1–3:** Outsource 2–3 well-scoped workstreams to hit near-term delivery targets. Budget: $60–90K.
+2. **Months 2–6:** Run parallel hiring for 2 senior engineers who will own core systems. These take longer to hire but last longer.
+3. **Months 6–12:** Evaluate outsourcing ROI; insource the highest-knowledge workstreams as internal capacity grows.
+
+**Verdict: MIXED** — the question is less "hire or outsource" and more "what to outsource and what to own."`,
+    sources: [],
+    isExpanded: true,
+  },
+}
+
+export const MOCK_RESULTS_BY_ID: Record<string, Record<string, MindResult>> = {
+  'demo-001': MOCK_MIND_RESULTS,
+  'pbai_r_abc123': BALI_RESTAURANT_RESULTS,
+  'pbai_r_def456': QUIT_JOB_RESULTS,
+  'pbai_r_ghi789': NEW_PRODUCT_Q3_RESULTS,
+  'pbai_r_jkl012': HIRE_VS_OUTSOURCE_RESULTS,
+}
+
+export function getMindResultsForId(id: string): Record<string, MindResult> {
+  return MOCK_RESULTS_BY_ID[id] ?? MOCK_MIND_RESULTS
+}
+
 export const MOCK_HISTORY: AnalysisRecord[] = [
   { id: 'demo-001', question: 'Should I pivot to B2B SaaS?', type: 'quick', confidence: 74, createdAt: Date.now() - 3600000 },
   { id: 'pbai_r_abc123', question: 'Open a restaurant in Bali', type: 'full', confidence: 61, createdAt: Date.now() - 86400000 },

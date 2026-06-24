@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Header } from '@/components/layout/Header'
@@ -10,6 +10,9 @@ import { useBeanAIStore } from '@/lib/store'
 import { MINDS } from '@/lib/minds'
 import type { MindKey } from '@/lib/types'
 import { generateId } from '@/lib/utils'
+
+const MERGE_MIND = MINDS.find(m => m.key === 'merge')!
+const OTHER_MINDS = MINDS.filter(m => m.key !== 'merge')
 
 const ANALYSIS_MESSAGES: Record<MindKey, string[]> = {
   fact: [
@@ -52,19 +55,30 @@ const ANALYSIS_MESSAGES: Record<MindKey, string[]> = {
 
 export default function AnalyzePage() {
   const router = useRouter()
-  const { currentQuestion, analysisType, mindProgress, updateMindProgress, setAnalysisDone } = useBeanAIStore()
+  const { currentQuestion, analysisId, analysisType, mindProgress, updateMindProgress, setAnalysisDone } = useBeanAIStore()
   const [entries, setEntries] = useState<StatusEntry[]>([])
   const [countdown, setCountdown] = useState(analysisType === 'quick' ? 28 : 150)
   const isRunning = useRef(false)
 
-  const addEntry = (mindKey: MindKey | null, message: string) => {
+  // Reset countdown if analysisType changes (e.g. store updated after mount)
+  useEffect(() => {
+    setCountdown(analysisType === 'quick' ? 28 : 150)
+  }, [analysisType])
+
+  // Redirect to home if navigated here without a question
+  useEffect(() => {
+    if (!currentQuestion) router.replace('/')
+  }, [currentQuestion, router])
+
+  const addEntry = useCallback((mindKey: MindKey | null, message: string) => {
     setEntries((prev) => [
       ...prev,
       { id: generateId(), mindKey, message, time: Date.now() },
     ])
-  }
+  }, [])
 
   useEffect(() => {
+    if (!currentQuestion) return
     if (isRunning.current) return
     isRunning.current = true
 
@@ -87,18 +101,17 @@ export default function AnalyzePage() {
     }
 
     const runAll = async () => {
-      // Run first 5 minds with staggered starts
-      const promises = MINDS.slice(0, 5).map((mind, i) => runMind(mind, i * 800))
+      const promises = OTHER_MINDS.map((mind, i) => runMind(mind, i * 800))
       await Promise.all(promises)
 
-      // Merge runs last
-      await runMind(MINDS[5], 500)
+      // Merge always runs last
+      await runMind(MERGE_MIND, 500)
 
       addEntry(null, 'All minds done. Preparing report...')
       setAnalysisDone()
 
       await new Promise((r) => setTimeout(r, 1200))
-      router.push('/results/demo-001')
+      router.push(`/results/${analysisId ?? 'demo-001'}`)
     }
 
     runAll()
@@ -110,6 +123,8 @@ export default function AnalyzePage() {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
+
+  if (!currentQuestion) return null
 
   return (
     <div className="min-h-screen flex flex-col bg-cream">
@@ -137,11 +152,9 @@ export default function AnalyzePage() {
                 ~{countdown}s remaining
               </span>
             </div>
-            {currentQuestion && (
-              <p className="font-serif text-xl text-navy font-bold leading-tight truncate">
-                &ldquo;{currentQuestion}&rdquo;
-              </p>
-            )}
+            <p className="font-serif text-xl text-navy font-bold leading-tight truncate">
+              &ldquo;{currentQuestion}&rdquo;
+            </p>
           </div>
 
           {/* Progress */}

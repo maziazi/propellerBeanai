@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   ReactFlow,
   Background,
@@ -95,8 +95,8 @@ function toReactFlowEdge(edge: GraphEdge): Edge {
 }
 
 export function KnowledgeGraph({ nodes, edges }: KnowledgeGraphProps) {
-  const rfNodes = nodes.map(toReactFlowNode)
-  const rfEdges = edges.map(toReactFlowEdge)
+  const rfNodes = useMemo(() => nodes.map(toReactFlowNode), [nodes])
+  const rfEdges = useMemo(() => edges.map(toReactFlowEdge), [edges])
 
   return (
     <div className="relative w-full h-full">

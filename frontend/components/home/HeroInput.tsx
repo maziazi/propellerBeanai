@@ -14,12 +14,13 @@ export function HeroInput() {
   const [focused, setFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
-  const { setQuestion, startAnalysis } = useBeanAIStore()
+  const { setQuestion, setAnalysisType, startAnalysis } = useBeanAIStore()
 
   const handleSubmit = () => {
     if (!value.trim()) return
     const id = generateId()
     setQuestion(value.trim())
+    setAnalysisType('quick') // HeroInput is quick-scan only; use HeroInputCard for full
     startAnalysis(id)
     router.push('/analyze')
   }

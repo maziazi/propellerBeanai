@@ -132,71 +132,68 @@ function AgentIllustration({ mindKey, accent }: { mindKey: string; accent: strin
   )
 }
 
-const AGENT_DETAILS = [
-  {
-    key: 'fact',
+// Keyed by MindKey — order is derived from MINDS, not this record
+const AGENT_DETAILS: Record<string, { hatName: string; headline: string; body: string; example: string }> = {
+  fact: {
     hatName: 'White Hat',
     headline: 'The Evidence Collector',
     body: 'FACT scans verified databases, pulls market reports, and cross-references statistics. No opinions — only what can be sourced and confirmed. Every claim comes with a citation.',
     example: '"B2B SaaS market hit $197B in 2023 at 18.7% CAGR. Your 2,400 MAUs map to 40–80 SMB prospects at industry conversion rates." — FACT',
   },
-  {
-    key: 'feel',
+  feel: {
     hatName: 'Red Hat',
     headline: 'The Emotion Reader',
     body: 'FEEL reads between the lines. It picks up the psychological undercurrent — the excitement, the fear, the resistance. No justification needed. Just the raw signal of how this decision feels.',
     example: '"The energy here is real. But there\'s fear under the confidence — fear of the slower B2B rhythm. That emotion is data." — FEEL',
   },
-  {
-    key: 'risk',
+  risk: {
     hatName: 'Black Hat',
     headline: 'The Devil\'s Advocate',
     body: 'RISK finds every crack before you fall into it. Sales cycle length, talent gaps, runway math, hidden assumptions. Not pessimism — precision. The risks you\'d rather hear from AI than from investors.',
     example: '"Seed-stage B2B pivots fail 34% of the time — and runway is the primary killer. You need 18 months minimum before first enterprise revenue." — RISK',
   },
-  {
-    key: 'gain',
+  gain: {
     hatName: 'Yellow Hat',
     headline: 'The Opportunity Mapper',
     body: 'GAIN looks for the upside that\'s easy to miss when you\'re focused on risk. Channel partnerships, pricing leverage, data moats, grant opportunities. The optimist with spreadsheets.',
     example: '"Your 2,400 MAUs are a behavioral dataset that enterprise competitors can\'t replicate. That\'s a defensible moat, not just a user base." — GAIN',
   },
-  {
-    key: 'wild',
+  wild: {
     hatName: 'Green Hat',
     headline: 'The Contrarian Innovator',
     body: 'WILD challenges the premise. It asks what everyone else missed, proposes the unexpected path, and generates the ideas that feel wrong at first but can\'t be unthought.',
     example: '"Don\'t pivot. Add team billing to your existing product this week. 3% of 2,400 MAUs at $79/mo = $5,688 MRR overnight — zero feature changes." — WILD',
   },
-  {
-    key: 'merge',
+  merge: {
     hatName: 'Blue Hat',
     headline: 'The Synthesizer',
     body: 'MERGE listens to everything and makes the call. It weighs FACT against RISK, balances FEEL with GAIN, and distills everything into one clear recommendation with a confidence score.',
     example: '"WAIT → GO. 30-day validation sprint first. Bridge strategy (not hard pivot) resolves the runway concern. Confidence: 74%." — MERGE',
   },
-]
+}
 
 export function AgentsScrollSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = []
-    itemRefs.current.forEach((ref, index) => {
-      if (!ref) return
-      const observer = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveIndex(index) },
-        { threshold: 0.55, rootMargin: '-10% 0px -10% 0px' }
-      )
-      observer.observe(ref)
-      observers.push(observer)
-    })
-    return () => observers.forEach(o => o.disconnect())
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const idx = itemRefs.current.indexOf(entry.target as HTMLDivElement)
+            if (idx !== -1) setActiveIndex(idx)
+          }
+        }
+      },
+      { threshold: 0.55, rootMargin: '-10% 0px -10% 0px' }
+    )
+    itemRefs.current.forEach((ref) => { if (ref) observer.observe(ref) })
+    return () => observer.disconnect()
   }, [])
 
-  const activeMind = MINDS.find(m => m.key === AGENT_DETAILS[activeIndex].key)!
-  const activeDetail = AGENT_DETAILS[activeIndex]
+  const activeMind = MINDS[activeIndex]
+  const activeDetail = AGENT_DETAILS[activeMind.key]
 
   return (
     <section id="minds" className="bg-cream">
@@ -217,12 +214,12 @@ export function AgentsScrollSection() {
 
           {/* LEFT — scrollable text (one per agent, 100vh each) */}
           <div>
-            {AGENT_DETAILS.map((agent, i) => {
-              const mind = MINDS.find(m => m.key === agent.key)!
+            {MINDS.map((mind, i) => {
+              const detail = AGENT_DETAILS[mind.key]
               const isActive = i === activeIndex
               return (
                 <div
-                  key={agent.key}
+                  key={mind.key}
                   ref={el => { itemRefs.current[i] = el }}
                   className="min-h-screen flex items-center py-16"
                 >
@@ -241,7 +238,7 @@ export function AgentsScrollSection() {
                       </div>
                       <div>
                         <span className="text-xs font-mono font-bold" style={{ color: mind.accent }}>{mind.label}</span>
-                        <span className="text-xs text-muted font-mono ml-2">— {agent.hatName}</span>
+                        <span className="text-xs text-muted font-mono ml-2">— {detail.hatName}</span>
                       </div>
                       <span className="ml-auto font-mono text-5xl font-bold text-border select-none leading-none">
                         0{i + 1}
@@ -250,18 +247,18 @@ export function AgentsScrollSection() {
 
                     {/* Headline */}
                     <h3 className="font-serif text-3xl md:text-4xl font-bold text-navy leading-tight">
-                      {agent.headline}
+                      {detail.headline}
                     </h3>
 
                     {/* Body */}
-                    <p className="text-slate text-lg leading-relaxed">{agent.body}</p>
+                    <p className="text-slate text-lg leading-relaxed">{detail.body}</p>
 
                     {/* Example quote */}
                     <blockquote
                       className="border-l-2 pl-4 text-sm italic text-slate leading-relaxed"
                       style={{ borderColor: mind.accent }}
                     >
-                      {agent.example}
+                      {detail.example}
                     </blockquote>
                   </motion.div>
                 </div>
@@ -274,8 +271,8 @@ export function AgentsScrollSection() {
             <div className="h-full flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <AgentIllustration
-                  key={activeDetail.key}
-                  mindKey={activeDetail.key}
+                  key={activeMind.key}
+                  mindKey={activeMind.key}
                   accent={activeMind.accent}
                 />
               </AnimatePresence>

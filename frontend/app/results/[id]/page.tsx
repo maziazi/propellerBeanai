@@ -4,7 +4,7 @@ import { BackButton } from '@/components/layout/BackButton'
 import { ReportHeader } from '@/components/results/ReportHeader'
 import { MindPanelList } from '@/components/results/MindPanelList'
 import { UpgradeCTA } from '@/components/results/UpgradeCTA'
-import { MOCK_MIND_RESULTS, MOCK_HISTORY } from '@/lib/mock-data'
+import { getMindResultsForId, MOCK_HISTORY } from '@/lib/mock-data'
 import { MessageSquare, Network } from 'lucide-react'
 
 interface ResultsPageProps {
@@ -76,7 +76,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             )}
           </div>
 
-          <MindPanelList results={MOCK_MIND_RESULTS} />
+          <MindPanelList results={getMindResultsForId(id)} />
 
           {record.type === 'quick' && <UpgradeCTA />}
         </div>

@@ -47,7 +47,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
   const [activeMember, setActiveMember] = useState<string | null>(null)
 
   const totalAdded = userMessageCount * COST_PER_MESSAGE
-  const currentRound = Math.max(...messages.map((m) => m.round), 1)
+  const currentRound = messages.reduce((max, m) => Math.max(max, m.round), 1)
   const participants = [...MINDS, USER_PARTICIPANT]
 
   const handleSend = (msg: DiscussionMessage) => {
