@@ -1,8 +1,10 @@
 """
 Test koneksi ke 3 external API: Groq, Gemini, Tavily.
-Jalankan: python test_connections.py
+Jalankan: python tests/test_connections.py
 Output tidak menampilkan API key.
 """
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import asyncio
 import os
 from dotenv import load_dotenv
