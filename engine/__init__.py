@@ -1,6 +1,3 @@
-from .intake import IntakeService
-from .runner import MindRunner
-from .discussion import DiscussionEngine
-from .graph import KnowledgeGraph
+from . import intake, runner, discussion
 
-__all__ = ["IntakeService", "MindRunner", "DiscussionEngine", "KnowledgeGraph"]
+__all__ = ["intake", "runner", "discussion"]
