@@ -121,7 +121,12 @@ Return JSON:
   "critical_question": "most important unanswered question after both rounds",
   "recommended_action": "single most important action right now",
   "emergent_insights": ["insight that emerged only after the full discussion"]
-}}"""
+}}
+
+Rules:
+- overall_assessment MUST be exactly one of: "positive", "negative", "mixed", "uncertain" — no translation
+- confidence_score MUST be an integer between 0 and 100
+- Return only the JSON object, nothing else"""
 
     try:
         resp = await asyncio.to_thread(

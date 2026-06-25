@@ -15,7 +15,12 @@ Return a JSON object with this exact structure:
   ],
   "hidden_assumptions": ["assumption being made that may not hold true"],
   "failure_scenarios": ["specific scenario where this fails badly"]
-}"""
+}
+
+Rules:
+- severity and probability MUST be exactly one of: "high", "medium", "low" — no translation
+- risk, hidden_assumptions, failure_scenarios can be in any language
+- Return only the JSON object, nothing else"""
 
 
 async def analyze(topic: str, context: str = None) -> BlackHatOutput:

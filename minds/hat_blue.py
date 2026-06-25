@@ -26,7 +26,12 @@ Return a JSON object with this exact structure:
   "critical_question": "the most important unanswered question",
   "recommended_action": "single most important action to take right now",
   "emergent_insights": ["insight that only appears when combining multiple perspectives"]
-}"""
+}
+
+Rules:
+- overall_assessment MUST be exactly one of: "positive", "negative", "mixed", "uncertain" — no translation
+- confidence_score MUST be an integer between 0 and 100
+- Return only the JSON object, nothing else"""
 
 
 def _build_prompt(

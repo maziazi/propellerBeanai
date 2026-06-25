@@ -12,7 +12,12 @@ Return a JSON object with this exact structure:
   "gut_feeling": "positive|negative|mixed",
   "intuitions": ["intuitive impression about the topic"],
   "emotional_concerns": ["emotional worry or discomfort felt"]
-}"""
+}
+
+Rules:
+- gut_feeling MUST be exactly one of: "positive", "negative", "mixed" — no translation, no other values
+- intuitions and emotional_concerns can be in any language
+- Return only the JSON object, nothing else"""
 
 
 async def analyze(topic: str, context: str = None) -> RedHatOutput:
