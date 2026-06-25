@@ -1,0 +1,28 @@
+from fastapi import APIRouter
+
+router = APIRouter(tags=["utility"])
+
+
+@router.get("/health")
+async def health():
+    return {"status": "ok", "version": "1.0.0", "service": "PrismAI"}
+
+
+@router.get("/schema")
+async def schema():
+    return {
+        "name": "PrismAI",
+        "description": "6 Thinking Hats decision analysis engine",
+        "version": "1.0.0",
+        "hats": ["white", "red", "black", "yellow", "green", "blue"],
+        "services": ["quick-scan", "full-prism"],
+        "endpoints": {
+            "analyze":     "POST /api/analyze",
+            "status":      "GET  /api/status/{job_id}",
+            "report":      "GET  /api/report/{job_id}",
+            "discuss":     "POST /api/discuss/{job_id}",
+            "single_mind": "POST /api/mind/{hat}",
+            "health":      "GET  /api/health",
+            "schema":      "GET  /api/schema",
+        },
+    }
