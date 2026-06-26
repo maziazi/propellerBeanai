@@ -9,10 +9,13 @@ router = APIRouter(tags=["analyze"])
 
 async def _run_analysis(job_id: str, topic: str, service: str, context: str = None):
     from engine import runner, discussion
+    from minds.verifier import verify as verify_sources
+    from engine.graph import build as build_graph
 
     try:
         storage.save(job_id, {"status": "processing", "topic": topic, "service": service})
 
+        # Ronde 1 — semua hat paralel
         round1 = await runner.run(topic, context)
 
         data = {
@@ -28,10 +31,35 @@ async def _run_analysis(job_id: str, topic: str, service: str, context: str = No
             "initial_blue_hat": round1.blue.model_dump(),
         }
 
+        # Ronde 2 — diskusi (hanya untuk full-prism)
         if service == "full-prism":
             disc, final_blue = await discussion.run(topic, round1, context)
-            data["discussion"]      = disc.model_dump()
-            data["final_blue_hat"]  = final_blue.model_dump()
+            data["discussion"]     = disc.model_dump()
+            data["final_blue_hat"] = final_blue.model_dump()
+
+        # Post-processing 1 — verifikasi sumber dari white hat
+        try:
+            verification = await verify_sources(round1.white.facts)
+            data["verified_sources"] = [f for f in verification["facts"] if f["verified"]]
+            data["verification_summary"] = {
+                "total":           verification["total"],
+                "verified_count":  verification["verified_count"],
+                "rate":            verification["verification_rate"],
+            }
+        except Exception as e:
+            data["verification_summary"] = {"error": str(e)}
+
+        # Post-processing 2 — build knowledge graph
+        try:
+            graph_result = await build_graph(job_id, data)
+            data["graph"] = {
+                "html_path":  graph_result["html_path"],
+                "node_count": graph_result["node_count"],
+                "edge_count": graph_result["edge_count"],
+                "graph_data": graph_result["graph_data"],
+            }
+        except Exception as e:
+            data["graph"] = {"error": str(e)}
 
         data["proof"] = storage.make_proof(data)
         storage.save(job_id, data)
