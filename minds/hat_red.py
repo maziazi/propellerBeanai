@@ -1,6 +1,6 @@
 # Red Hat: emotions, gut feelings, intuition
 import json
-from clients import groq, GROQ_FAST
+from clients import groq, GROQ_LARGE
 from models.response import RedHatOutput
 
 _SYSTEM = """\
@@ -26,7 +26,7 @@ async def analyze(topic: str, context: str = None) -> RedHatOutput:
         user_msg += f"\nContext: {context}"
 
     resp = await groq.chat.completions.create(
-        model=GROQ_FAST,
+        model=GROQ_LARGE,
         messages=[
             {"role": "system", "content": _SYSTEM},
             {"role": "user", "content": user_msg},
