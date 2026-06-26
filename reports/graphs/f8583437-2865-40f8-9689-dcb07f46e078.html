@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 620px;
+                 background-color: #1a1a2e;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#e0e0e0", "font": {"color": "white"}, "id": "e1", "label": "Coffee Shop Business", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e2", "label": "Capital", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e3", "label": "Rp50 million", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e4", "label": "Indonesia", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e5", "label": "Depok", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e6", "label": "Jakarta", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e7", "label": "Tangerang Selatan", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#e0e0e0", "font": {"color": "white"}, "id": "e8", "label": "Marketing Strategies", "shape": "dot", "size": 22, "title": "fact \u2014 white hat"}, {"color": "#ff6b6b", "font": {"color": "white"}, "id": "e9", "label": "Bisnis warung kopi di Jakarta Selatan", "shape": "dot", "size": 22, "title": "emotion \u2014 red hat"}, {"color": "#777777", "font": {"color": "white"}, "id": "e10", "label": "Persaingan dengan warung kopi lain", "shape": "dot", "size": 22, "title": "risk \u2014 black hat"}, {"color": "#777777", "font": {"color": "white"}, "id": "e11", "label": "Kualitas produk dan layanan", "shape": "dot", "size": 22, "title": "risk \u2014 black hat"}, {"color": "#777777", "font": {"color": "white"}, "id": "e12", "label": "Manajemen keuangan", "shape": "dot", "size": 22, "title": "risk \u2014 black hat"}, {"color": "#ffd93d", "font": {"color": "white"}, "id": "e13", "label": "Membuka warung kopi di Jakarta Selatan", "shape": "dot", "size": 22, "title": "opportunity \u2014 yellow hat"}, {"color": "#ffd93d", "font": {"color": "white"}, "id": "e14", "label": "Mengembangkan strategi pemasaran", "shape": "dot", "size": 22, "title": "opportunity \u2014 yellow hat"}, {"color": "#ffd93d", "font": {"color": "white"}, "id": "e15", "label": "Membuka warung kopi dengan modal kecil", "shape": "dot", "size": 22, "title": "opportunity \u2014 yellow hat"}, {"color": "#6bcb77", "font": {"color": "white"}, "id": "e16", "label": "Membuka warung kopi di dalam kampus", "shape": "dot", "size": 22, "title": "alternative \u2014 green hat"}, {"color": "#6bcb77", "font": {"color": "white"}, "id": "e17", "label": "Menawarkan menu minuman kopi unik", "shape": "dot", "size": 22, "title": "alternative \u2014 green hat"}, {"color": "#6bcb77", "font": {"color": "white"}, "id": "e18", "label": "Menggunakan konsep warung kopi berbasis komunitas", "shape": "dot", "size": 22, "title": "alternative \u2014 green hat"}, {"color": "#4d96ff", "font": {"color": "white"}, "id": "e19", "label": "Starting a coffee shop in South Jakarta", "shape": "dot", "size": 22, "title": "insight \u2014 blue hat"}, {"color": "#4d96ff", "font": {"color": "white"}, "id": "e20", "label": "Targeting students", "shape": "dot", "size": 22, "title": "insight \u2014 blue hat"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#6bcb77", "from": "e1", "label": "can be started with", "title": "supports", "to": "e2"}, {"arrows": "to", "color": "#6bcb77", "from": "e1", "label": "can be started with", "title": "supports", "to": "e3"}, {"arrows": "to", "color": "#ff6b6b", "from": "e1", "label": "high competition from", "title": "conflicts", "to": "e4"}, {"arrows": "to", "color": "#4d96ff", "from": "e1", "label": "similar to", "title": "builds_on", "to": "e5"}, {"arrows": "to", "color": "#4d96ff", "from": "e1", "label": "similar to", "title": "builds_on", "to": "e6"}, {"arrows": "to", "color": "#4d96ff", "from": "e1", "label": "similar to", "title": "builds_on", "to": "e7"}, {"arrows": "to", "color": "#4d96ff", "from": "e9", "label": "positive feeling about", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#ff6b6b", "from": "e10", "label": "high competition from", "title": "conflicts", "to": "e1"}, {"arrows": "to", "color": "#ff6b6b", "from": "e11", "label": "low quality products", "title": "conflicts", "to": "e1"}, {"arrows": "to", "color": "#ff6b6b", "from": "e12", "label": "poor financial management", "title": "conflicts", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e13", "label": "new opportunity for", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e14", "label": "effective marketing strategy for", "title": "builds_on", "to": "e13"}, {"arrows": "to", "color": "#4d96ff", "from": "e15", "label": "low initial investment for", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e16", "label": "new location for", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e17", "label": "unique menu for", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e18", "label": "community-based concept for", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e19", "label": "summary of", "title": "builds_on", "to": "e1"}, {"arrows": "to", "color": "#4d96ff", "from": "e20", "label": "target market for", "title": "builds_on", "to": "e1"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 120}, "barnesHut": {"gravitationalConstant": -8000}}, "edges": {"arrows": {"to": {"enabled": true, "scaleFactor": 0.8}}, "smooth": {"type": "curvedCW", "roundness": 0.2}, "font": {"size": 10, "color": "#cccccc"}}, "interaction": {"hover": true, "tooltipDelay": 100}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

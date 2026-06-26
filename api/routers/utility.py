@@ -23,6 +23,7 @@ async def schema():
             "analyze":     "POST /api/analyze",
             "status":      "GET  /api/status/{job_id}",
             "report":      "GET  /api/report/{job_id}",
+            "graph":       "GET  /api/graph/{job_id}",
             "discuss":     "POST /api/discuss/{job_id}",
             "single_mind": "POST /api/mind/{hat}",
             "health":      "GET  /api/health",

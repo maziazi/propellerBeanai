@@ -1,5 +1,7 @@
 import uuid
+from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi.responses import FileResponse
 import storage
 
 router = APIRouter(tags=["report"])
@@ -64,3 +66,22 @@ async def trigger_discussion(job_id: str, background_tasks: BackgroundTasks):
 
     background_tasks.add_task(_run)
     return {"job_id": discuss_job_id, "parent_job_id": job_id, "estimated_seconds": 30}
+
+
+@router.get("/graph/{job_id}")
+async def get_graph(job_id: str):
+    data = storage.load(job_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if data.get("status") != "done":
+        raise HTTPException(status_code=202, detail=f"Report not ready. Status: {data['status']}")
+
+    graph = data.get("graph")
+    if not graph or graph.get("error"):
+        raise HTTPException(status_code=404, detail="Graph not available for this report")
+
+    html_path = Path(graph["html_path"])
+    if not html_path.exists():
+        raise HTTPException(status_code=404, detail="Graph file not found on server")
+
+    return FileResponse(html_path, media_type="text/html")
