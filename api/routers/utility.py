@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from models.request import ClarifyRequest
+from engine.intake import clarify
 
 router = APIRouter(tags=["utility"])
 
@@ -17,6 +19,7 @@ async def schema():
         "hats": ["white", "red", "black", "yellow", "green", "blue"],
         "services": ["quick-scan", "full-prism"],
         "endpoints": {
+            "clarify":     "POST /api/clarify",
             "analyze":     "POST /api/analyze",
             "status":      "GET  /api/status/{job_id}",
             "report":      "GET  /api/report/{job_id}",
@@ -26,3 +29,13 @@ async def schema():
             "schema":      "GET  /api/schema",
         },
     }
+
+
+@router.post("/clarify")
+async def clarify_topic(body: ClarifyRequest):
+    """
+    Cek apakah topik cukup spesifik untuk dianalisis.
+    Jika vague, kembalikan pertanyaan klarifikasi ke user.
+    Panggil ini sebelum /api/analyze.
+    """
+    return await clarify(body.topic)
