@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { MessageSquare, Network, Zap, Users } from 'lucide-react'
@@ -12,14 +12,13 @@ import { MergeSynthesisCard } from '@/components/discussion/MergeSynthesisCard'
 import { ChatInput } from '@/components/discussion/ChatInput'
 import { MINDS } from '@/lib/minds'
 import {
-  MOCK_MESSAGES,
   MOCK_EMERGENT_INSIGHTS,
   MOCK_MERGE_SYNTHESIS,
-  MOCK_HISTORY,
   DEMO_QUESTION,
 } from '@/lib/mock-data'
 import type { DiscussionMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { reportToDiscussionMessages, reportToEmergentInsights, reportToMergeSynthesis } from '@/lib/transform'
 
 const COST_PER_MESSAGE = 0.05
 const BASE_COST = 0.45
@@ -35,19 +34,38 @@ const USER_PARTICIPANT = {
 
 interface DiscussionPageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<Record<string, string>>
 }
 
 export default function DiscussionPage({ params }: DiscussionPageProps) {
   const { id } = use(params)
-  const record = MOCK_HISTORY.find((h) => h.id === id)
-  const question = record?.question ?? DEMO_QUESTION
 
-  const [messages, setMessages] = useState<DiscussionMessage[]>(MOCK_MESSAGES)
+  // We'll load the report client-side once on mount
+  const [report, setReport] = useState<Record<string, unknown> | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+    fetch(`${base}/api/report/${id}`, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { setReport(data); setLoaded(true) })
+      .catch(() => setLoaded(true))
+  }, [id])
+
+  const question = (report?.topic as string) ?? DEMO_QUESTION
+  const initialMessages = report ? reportToDiscussionMessages(report) : []
+  const emergentInsights = report ? reportToEmergentInsights(report) : MOCK_EMERGENT_INSIGHTS
+  const mergeSynthesis = report ? reportToMergeSynthesis(report) : MOCK_MERGE_SYNTHESIS
+
+  const [messages, setMessages] = useState<DiscussionMessage[]>([])
   const [userMessageCount, setUserMessageCount] = useState(0)
   const [activeMember, setActiveMember] = useState<string | null>(null)
 
+  // Merge initial messages from report when loaded
+  const allMessages = [...initialMessages, ...messages]
+
   const totalAdded = userMessageCount * COST_PER_MESSAGE
-  const currentRound = messages.reduce((max, m) => Math.max(max, m.round), 1)
+  const currentRound = allMessages.reduce((max, m) => Math.max(max, m.round), 1)
   const participants = [...MINDS, USER_PARTICIPANT]
 
   const handleSend = (msg: DiscussionMessage) => {
@@ -101,7 +119,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
           <div className="flex-1 overflow-y-auto py-2">
             {participants.map((p) => {
               const isUser = p.key === 'user'
-              const msgCount = messages.filter((m) => m.from === p.key).length
+              const msgCount = allMessages.filter((m) => m.from === p.key).length
               const isActive = activeMember === p.key
 
               return (
@@ -174,12 +192,13 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
 
         {/* CENTER — Chat area */}
         <div className="flex-1 flex flex-col overflow-hidden bg-cream">
-          {/* Scrollable messages */}
           <div className="flex-1 overflow-y-auto p-4">
-            <DiscussionTimeline messages={messages} autoScroll />
+            {!loaded && (
+              <div className="text-center py-10 text-slate font-mono text-xs">Loading discussion...</div>
+            )}
+            <DiscussionTimeline messages={allMessages} autoScroll />
 
-            {/* Emergent insights */}
-            {MOCK_EMERGENT_INSIGHTS.length > 0 && (
+            {emergentInsights.length > 0 && (
               <div className="mt-6 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-border" />
@@ -188,14 +207,13 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
                   </span>
                   <div className="h-px flex-1 bg-border" />
                 </div>
-                {MOCK_EMERGENT_INSIGHTS.map((insight, i) => (
+                {emergentInsights.map((insight, i) => (
                   <EmergentInsightCard key={insight.id} insight={insight} index={i} />
                 ))}
               </div>
             )}
           </div>
 
-          {/* Input */}
           <div className="shrink-0">
             <ChatInput
               onSend={handleSend}
@@ -211,7 +229,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
             <span className="text-[11px] font-mono text-blue font-bold tracking-wider uppercase">Merge Synthesis</span>
           </div>
           <div className="p-3">
-            <MergeSynthesisCard synthesis={MOCK_MERGE_SYNTHESIS} />
+            {mergeSynthesis && <MergeSynthesisCard synthesis={mergeSynthesis} />}
           </div>
         </div>
 

@@ -1,7 +1,41 @@
-import { ArrowRight, Zap } from 'lucide-react'
-import Link from 'next/link'
+'use client'
 
-export function UpgradeCTA() {
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowRight, Zap } from 'lucide-react'
+import { postDiscuss, getStatus } from '@/lib/api'
+
+interface UpgradeCTAProps {
+  reportId: string
+}
+
+export function UpgradeCTA({ reportId }: UpgradeCTAProps) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleUpgrade = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { job_id, parent_job_id } = await postDiscuss(reportId)
+
+      // Poll until discussion done
+      let done = false
+      while (!done) {
+        await new Promise(r => setTimeout(r, 2500))
+        const st = await getStatus(job_id)
+        if (st.status === 'done') done = true
+        else if (st.status === 'failed') throw new Error(st.error ?? 'Discussion failed')
+      }
+
+      router.push(`/results/${parent_job_id}/discussion`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="rounded-2xl border border-dashed border-blue bg-blue-soft p-5">
       <div className="flex items-start gap-3">
@@ -28,13 +62,15 @@ export function UpgradeCTA() {
               </li>
             ))}
           </ul>
-          <Link
-            href="#"
-            className="inline-flex items-center gap-2 bg-blue text-white hover:bg-blue/90 text-xs font-medium px-4 py-2 rounded-lg transition-colors active:scale-95"
+          {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-blue text-white hover:bg-blue/90 disabled:opacity-60 text-xs font-medium px-4 py-2 rounded-lg transition-colors active:scale-95"
           >
-            Run Full Analysis — $0.45
+            {loading ? 'Running discussion...' : 'Run Full Analysis — $0.45'}
             <ArrowRight size={12} />
-          </Link>
+          </button>
         </div>
       </div>
     </div>

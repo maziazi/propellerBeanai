@@ -3,8 +3,31 @@ from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 import storage
+from storage import REPORTS_DIR
 
 router = APIRouter(tags=["report"])
+
+
+@router.get("/history")
+async def get_history():
+    import json as _json
+    records = []
+    for path in sorted(REPORTS_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+        try:
+            data = _json.loads(path.read_text())
+        except Exception:
+            continue
+        if data.get("status") != "done":
+            continue
+        blue = data.get("final_blue_hat") or data.get("initial_blue_hat") or {}
+        records.append({
+            "id":         path.stem,
+            "topic":      data.get("topic", ""),
+            "service":    data.get("service", "quick-scan"),
+            "confidence": blue.get("confidence_score", 70),
+            "created_at": (data.get("proof") or {}).get("generated_at", ""),
+        })
+    return records
 
 
 @router.get("/report/{job_id}")

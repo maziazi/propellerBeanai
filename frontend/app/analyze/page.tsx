@@ -10,62 +10,27 @@ import { useBeanAIStore } from '@/lib/store'
 import { MINDS } from '@/lib/minds'
 import type { MindKey } from '@/lib/types'
 import { generateId } from '@/lib/utils'
+import { postAnalyze, getStatus } from '@/lib/api'
 
 const MERGE_MIND = MINDS.find(m => m.key === 'merge')!
 const OTHER_MINDS = MINDS.filter(m => m.key !== 'merge')
 
-const ANALYSIS_MESSAGES: Record<MindKey, string[]> = {
-  fact: [
-    'Scanning verified databases...',
-    'Cross-referencing Gartner & Statista...',
-    'Validating market figures...',
-    'FACT analysis complete.',
-  ],
-  feel: [
-    'Reading emotional signal...',
-    'Processing intuition layer...',
-    'Evaluating gut response...',
-    'FEEL analysis complete.',
-  ],
-  risk: [
-    'Mapping risk surface...',
-    'Identifying blind spots...',
-    'Stress-testing assumptions...',
-    'RISK analysis complete.',
-  ],
-  gain: [
-    'Scanning opportunity space...',
-    'Calculating upside potential...',
-    'Mapping partner channels...',
-    'GAIN analysis complete.',
-  ],
-  wild: [
-    'Running contrarian scenarios...',
-    'Exploring unexpected angles...',
-    'Generating creative alternatives...',
-    'WILD analysis complete.',
-  ],
-  merge: [
-    'Synthesizing all perspectives...',
-    'Detecting convergence patterns...',
-    'Calculating confidence score...',
-    'MERGE synthesis complete.',
-  ],
+const MIND_LABELS: Record<MindKey, string> = {
+  fact: 'FACT', feel: 'FEEL', risk: 'RISK', gain: 'GAIN', wild: 'WILD', merge: 'MERGE',
 }
 
 export default function AnalyzePage() {
   const router = useRouter()
-  const { currentQuestion, analysisId, analysisType, mindProgress, updateMindProgress, setAnalysisDone } = useBeanAIStore()
+  const { currentQuestion, analysisId, analysisType, mindProgress, updateMindProgress, setAnalysisDone, startAnalysis } = useBeanAIStore()
   const [entries, setEntries] = useState<StatusEntry[]>([])
-  const [countdown, setCountdown] = useState(analysisType === 'quick' ? 28 : 150)
+  const [countdown, setCountdown] = useState(analysisType === 'quick' ? 35 : 160)
   const isRunning = useRef(false)
+  const jobIdRef = useRef<string | null>(analysisId)
 
-  // Reset countdown if analysisType changes (e.g. store updated after mount)
   useEffect(() => {
-    setCountdown(analysisType === 'quick' ? 28 : 150)
+    setCountdown(analysisType === 'quick' ? 35 : 160)
   }, [analysisType])
 
-  // Redirect to home if navigated here without a question
   useEffect(() => {
     if (!currentQuestion) router.replace('/')
   }, [currentQuestion, router])
@@ -82,39 +47,59 @@ export default function AnalyzePage() {
     if (isRunning.current) return
     isRunning.current = true
 
+    const service = analysisType === 'full' ? 'full-prism' : 'quick-scan'
     addEntry(null, `Starting ${analysisType === 'quick' ? 'Quick Scan' : 'Full Analysis'}...`)
 
-    const runMind = async (mind: typeof MINDS[0], delay: number) => {
-      await new Promise((r) => setTimeout(r, delay))
-      updateMindProgress(mind.key, 'analyzing')
-      addEntry(mind.key, ANALYSIS_MESSAGES[mind.key][0])
-
-      const msgs = ANALYSIS_MESSAGES[mind.key].slice(1, -1)
-      for (const msg of msgs) {
-        await new Promise((r) => setTimeout(r, 1200 + Math.random() * 800))
-        addEntry(mind.key, msg)
-      }
-
-      await new Promise((r) => setTimeout(r, 1000 + Math.random() * 500))
-      updateMindProgress(mind.key, 'done')
-      addEntry(mind.key, ANALYSIS_MESSAGES[mind.key][ANALYSIS_MESSAGES[mind.key].length - 1])
-    }
-
-    const runAll = async () => {
-      const promises = OTHER_MINDS.map((mind, i) => runMind(mind, i * 800))
+    const animateMinds = async () => {
+      const delays = OTHER_MINDS.map((_, i) => i * 1200)
+      const promises = OTHER_MINDS.map(async (mind, i) => {
+        await new Promise(r => setTimeout(r, delays[i]))
+        updateMindProgress(mind.key, 'analyzing')
+        addEntry(mind.key, `${MIND_LABELS[mind.key]} analysis running...`)
+      })
       await Promise.all(promises)
-
-      // Merge always runs last
-      await runMind(MERGE_MIND, 500)
-
-      addEntry(null, 'All minds done. Preparing report...')
-      setAnalysisDone()
-
-      await new Promise((r) => setTimeout(r, 1200))
-      router.push(`/results/${analysisId ?? 'demo-001'}`)
     }
 
-    runAll()
+    const run = async () => {
+      try {
+        const { job_id } = await postAnalyze(currentQuestion, service)
+        jobIdRef.current = job_id
+        startAnalysis(job_id)
+
+        addEntry(null, `Job started — id: ${job_id.slice(0, 8)}...`)
+        animateMinds()
+
+        // Poll for completion
+        let done = false
+        while (!done) {
+          await new Promise(r => setTimeout(r, 2500))
+          const st = await getStatus(job_id)
+
+          if (st.status === 'done') {
+            done = true
+          } else if (st.status === 'failed') {
+            addEntry(null, `Analysis failed: ${st.error ?? 'unknown error'}`)
+            return
+          }
+        }
+
+        // Mark all minds done
+        for (const mind of [...OTHER_MINDS, MERGE_MIND]) {
+          updateMindProgress(mind.key, 'done')
+          addEntry(mind.key, `${MIND_LABELS[mind.key]} complete.`)
+        }
+
+        addEntry(null, 'All minds done. Preparing report...')
+        setAnalysisDone()
+
+        await new Promise(r => setTimeout(r, 800))
+        router.push(`/results/${job_id}`)
+      } catch (err) {
+        addEntry(null, `Error: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+
+    run()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -137,12 +122,10 @@ export default function AnalyzePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Section label */}
           <div className="border-t border-border pt-4">
             <span className="font-mono text-xs text-muted uppercase tracking-widest">Analysis in progress</span>
           </div>
 
-          {/* Header */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-mono text-slate uppercase tracking-wider">
@@ -157,19 +140,16 @@ export default function AnalyzePage() {
             </p>
           </div>
 
-          {/* Progress */}
           <div className="bg-white border border-border rounded-2xl p-5">
             <p className="text-xs font-mono text-muted uppercase tracking-widest mb-4">Mind progress</p>
             <MindProgressList progress={mindProgress} />
           </div>
 
-          {/* Live feed */}
           <div>
             <p className="text-xs font-mono text-muted uppercase tracking-widest mb-3">Live activity</p>
             <LiveStatusFeed entries={entries} />
           </div>
 
-          {/* Skeleton preview */}
           <div className="space-y-3 opacity-40">
             <p className="text-xs font-mono text-muted">Report preview loading...</p>
             {Array.from({ length: 3 }).map((_, i) => (

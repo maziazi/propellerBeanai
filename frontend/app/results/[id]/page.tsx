@@ -4,23 +4,33 @@ import { BackButton } from '@/components/layout/BackButton'
 import { ReportHeader } from '@/components/results/ReportHeader'
 import { MindPanelList } from '@/components/results/MindPanelList'
 import { UpgradeCTA } from '@/components/results/UpgradeCTA'
-import { getMindResultsForId, MOCK_HISTORY } from '@/lib/mock-data'
 import { MessageSquare, Network } from 'lucide-react'
+import { reportToMindResults, reportConfidence } from '@/lib/transform'
 
 interface ResultsPageProps {
   params: Promise<{ id: string }>
 }
 
+async function fetchReport(id: string) {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  try {
+    const res = await fetch(`${base}/api/report/${id}`, { cache: 'no-store' })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
+
 export default async function ResultsPage({ params }: ResultsPageProps) {
   const { id } = await params
+  const report = await fetchReport(id)
 
-  const record = MOCK_HISTORY.find((h) => h.id === id) ?? {
-    id,
-    question: 'Should I pivot to B2B SaaS?',
-    type: 'quick' as const,
-    confidence: 74,
-    createdAt: Date.now() - 3600000,
-  }
+  const question = report?.topic ?? 'Analysis result'
+  const type = report?.service === 'full-prism' ? 'full' : 'quick'
+  const confidence = report ? reportConfidence(report) : 70
+  const mindResultsList = report ? reportToMindResults(report) : []
+  const mindResults = Object.fromEntries(mindResultsList.map(r => [r.mindKey, r])) as Record<string, import('@/lib/types').MindResult | null>
 
   return (
     <div className="min-h-screen flex flex-col bg-cream">
@@ -31,11 +41,11 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
           <BackButton href="/" label="New analysis" />
 
           <ReportHeader
-            question={record.question}
-            reportId={record.id}
-            confidence={record.confidence}
-            type={record.type}
-            createdAt={record.createdAt}
+            question={question}
+            reportId={id}
+            confidence={confidence}
+            type={type}
+            createdAt={Date.now()}
           />
 
           {/* Navigation tabs */}
@@ -55,7 +65,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
               Graph
             </Link>
 
-            {record.type === 'full' ? (
+            {type === 'full' ? (
               <Link
                 href={`/results/${id}/discussion`}
                 className="pb-3 text-xs font-mono text-slate hover:text-navy transition-colors flex items-center gap-1.5 border-b-2 border-transparent -mb-px"
@@ -76,9 +86,16 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             )}
           </div>
 
-          <MindPanelList results={getMindResultsForId(id)} />
+          {report === null ? (
+            <div className="text-center py-20 text-slate font-mono text-sm">
+              Report not found or still processing.{' '}
+              <Link href="/" className="text-blue underline">Start new analysis</Link>
+            </div>
+          ) : (
+            <MindPanelList results={mindResults} />
+          )}
 
-          {record.type === 'quick' && <UpgradeCTA />}
+          {type === 'quick' && report !== null && <UpgradeCTA reportId={id} />}
         </div>
       </main>
     </div>

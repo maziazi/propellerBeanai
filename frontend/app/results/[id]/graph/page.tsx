@@ -1,19 +1,29 @@
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { BackButton } from '@/components/layout/BackButton'
-import { GraphLegend } from '@/components/graph/GraphLegend'
-import { GraphCanvas } from '@/components/graph/GraphCanvas'
-import { MOCK_GRAPH_NODES, MOCK_GRAPH_EDGES, MOCK_HISTORY, DEMO_QUESTION } from '@/lib/mock-data'
 import { MessageSquare, Network } from 'lucide-react'
 
 interface GraphPageProps {
   params: Promise<{ id: string }>
 }
 
+async function fetchTopic(id: string): Promise<string> {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  try {
+    const res = await fetch(`${base}/api/report/${id}`, { cache: 'no-store' })
+    if (!res.ok) return ''
+    const data = await res.json()
+    return data.topic ?? ''
+  } catch {
+    return ''
+  }
+}
+
 export default async function GraphPage({ params }: GraphPageProps) {
   const { id } = await params
-  const record = MOCK_HISTORY.find((h) => h.id === id)
-  const question = record?.question ?? DEMO_QUESTION
+  const topic = await fetchTopic(id)
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  const graphSrc = `${base}/api/graph/${id}`
 
   return (
     <div className="min-h-screen flex flex-col bg-cream">
@@ -22,7 +32,7 @@ export default async function GraphPage({ params }: GraphPageProps) {
       <div className="px-4 py-6 pt-24">
         <div className="max-w-6xl mx-auto space-y-4">
           <BackButton href={`/results/${id}`} label="Back to results" />
-          <h2 className="text-lg font-bold text-navy">&ldquo;{question}&rdquo;</h2>
+          {topic && <h2 className="text-lg font-bold text-navy">&ldquo;{topic}&rdquo;</h2>}
 
           {/* Tabs */}
           <div className="flex gap-1 border-b border-border pb-px">
@@ -41,12 +51,13 @@ export default async function GraphPage({ params }: GraphPageProps) {
         </div>
       </div>
 
-      {/* Full-height graph canvas */}
       <div className="flex-1 flex flex-col border-t border-border" style={{ minHeight: '600px' }}>
-        <div className="flex-1 relative">
-          <GraphCanvas nodes={MOCK_GRAPH_NODES} edges={MOCK_GRAPH_EDGES} />
-        </div>
-        <GraphLegend />
+        <iframe
+          src={graphSrc}
+          className="flex-1 w-full border-none"
+          style={{ minHeight: '600px' }}
+          title="Knowledge Graph"
+        />
       </div>
     </div>
   )
