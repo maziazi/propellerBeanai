@@ -21,3 +21,6 @@ pyvis>=0.3.2
 # Utilities
 python-dotenv>=1.0.0
 rich>=13.7.0
+
+# CROO Agent Protocol
+croo-sdk>=0.2.0

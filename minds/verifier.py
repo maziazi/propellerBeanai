@@ -46,7 +46,7 @@ async def verify(facts: list[Fact]) -> dict:
     if not facts:
         return {"facts": [], "verified_count": 0, "total": 0, "verification_rate": 0}
 
-    headers = {"User-Agent": "PrismAI-Verifier/1.0"}
+    headers = {"User-Agent": "BeanAI-Verifier/1.0"}
     async with httpx.AsyncClient(headers=headers) as client:
         results = await asyncio.gather(*(_check_url(client, f) for f in facts))
 

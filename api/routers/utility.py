@@ -7,13 +7,13 @@ router = APIRouter(tags=["utility"])
 
 @router.get("/health")
 async def health():
-    return {"status": "ok", "version": "1.0.0", "service": "PrismAI"}
+    return {"status": "ok", "version": "1.0.0", "service": "BeanAI"}
 
 
 @router.get("/schema")
 async def schema():
     return {
-        "name": "PrismAI",
+        "name": "BeanAI",
         "description": "6 Thinking Hats decision analysis engine",
         "version": "1.0.0",
         "hats": ["white", "red", "black", "yellow", "green", "blue"],
