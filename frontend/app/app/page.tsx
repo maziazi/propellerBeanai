@@ -69,7 +69,7 @@ export default function AppDashboard() {
             ))}
           </span>
           <span className="font-bold text-base" style={{ color: G.text }}>
-            Prism<span style={{ color: G.blue }}>AI</span>
+            Bean<span style={{ color: G.blue }}>AI</span>
           </span>
           <span
             className="text-[10px] font-mono px-2 py-0.5 rounded-full"
@@ -139,7 +139,7 @@ export default function AppDashboard() {
                   <span className="hl-blue">decide today?</span>
                 </h1>
                 <p className="text-sm" style={{ color: G.text2 }}>
-                  Type your question or decision below. PrismAI will run all six minds in parallel and return a structured report.
+                  Type your question or decision below. BeanAI will run all six minds in parallel and return a structured report.
                 </p>
               </div>
 

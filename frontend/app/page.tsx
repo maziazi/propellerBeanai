@@ -218,7 +218,7 @@ export default function LandingPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.25, duration: 0.45 }}
           >
-            PrismAI runs six specialized AI agents in parallel — facts, emotion, risk, opportunity, creativity, and synthesis — and delivers one confident recommendation.
+            BeanAI runs six specialized AI agents in parallel — facts, emotion, risk, opportunity, creativity, and synthesis — and delivers one confident recommendation.
           </motion.p>
 
           {/* ─ CTA buttons ─ */}
@@ -314,7 +314,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
-              { num: '01', title: 'Write your question', desc: 'Describe your decision or challenge. PrismAI asks clarifying questions to sharpen the topic before analysis starts.', color: G.blue, bg: G.blueSoft },
+              { num: '01', title: 'Write your question', desc: 'Describe your decision or challenge. BeanAI asks clarifying questions to sharpen the topic before analysis starts.', color: G.blue, bg: G.blueSoft },
               { num: '02', title: 'Six minds analyze', desc: 'All 6 AI agents run in parallel — facts, emotion, risk, opportunity, creativity, and synthesis — simultaneously.', color: G.red, bg: G.redSoft },
               { num: '03', title: 'Get your recommendation', desc: 'One structured report with a confidence score, verified sources, knowledge graph, and clear next steps.', color: G.green, bg: G.greenSoft },
             ].map((step, i) => (
@@ -406,7 +406,7 @@ export default function LandingPage() {
             {[
               { value: '35 yrs', label: 'Six Thinking Hats proven in Fortune 500 companies worldwide' },
               { value: '6×',     label: 'More perspectives than solo brainstorming or group discussion' },
-              { value: '~28s',   label: 'Average PrismAI analysis time per decision question' },
+              { value: '~28s',   label: 'Average BeanAI analysis time per decision question' },
             ].map((s, i) => (
               <motion.div
                 key={s.value}
@@ -613,7 +613,7 @@ export default function LandingPage() {
               ))}
             </span>
             <span className="font-bold text-lg" style={{ color: G.text }}>
-              Prism<span style={{ color: G.blue }}>AI</span>
+              Bean<span style={{ color: G.blue }}>AI</span>
             </span>
           </div>
           <p className="text-xs font-mono" style={{ color: '#9AA0A6' }}>© 2026 Propeller · CROO Agent Hackathon</p>

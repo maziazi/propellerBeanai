@@ -1,5 +1,46 @@
 @import "tailwindcss";
 
+/*
+  TWK Lausanne Pan — paid font from Weltkern (weltkern.com/typefaces/lausanne)
+  Place font files in /public/fonts/ and uncomment the @font-face blocks below.
+
+@font-face {
+  font-family: 'TWK Lausanne Pan';
+  src: url('/fonts/TWKLausannePan-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TWK Lausanne Pan';
+  src: url('/fonts/TWKLausannePan-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TWK Lausanne Pan';
+  src: url('/fonts/TWKLausannePan-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TWK Lausanne Pan';
+  src: url('/fonts/TWKLausannePan-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TWK Lausanne Pan';
+  src: url('/fonts/TWKLausannePan-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
 @theme {
   /* ── Google Material palette ── */
   --color-g-blue:        #4285F4;
