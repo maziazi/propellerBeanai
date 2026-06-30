@@ -68,11 +68,11 @@ export function MindPanel({ result }: MindPanelProps) {
 
   return (
     <div
-      className="rounded-xl border border-border overflow-hidden"
+      className="rounded-xl overflow-hidden"
       style={{
         backgroundColor: mind.bg,
-        borderLeftColor: mind.accent,
-        borderLeftWidth: 3,
+        border: `0.5px solid rgba(0,0,0,0.10)`,
+        borderLeft: `3px solid ${mind.accent}`,
       }}
     >
       <button

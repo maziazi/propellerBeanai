@@ -23,7 +23,7 @@ export function ReportHeader({ question, reportId, confidence, type, createdAt }
             {type === 'quick' ? 'Quick Scan' : 'Full Analysis'}
           </span>
         </div>
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-navy leading-tight">{question}</h1>
+        <h1 className="font-sans text-2xl md:text-3xl font-black text-navy leading-tight tracking-tight">{question}</h1>
       </div>
 
       <div className="flex flex-wrap items-center gap-1 pt-4 border-t border-border">

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Header } from '@/components/layout/Header'
 import { ConfidenceScore } from '@/components/shared/ConfidenceScore'
 import { MonoText } from '@/components/shared/MonoText'
 import { Clock, ArrowRight } from 'lucide-react'
@@ -43,10 +42,8 @@ export default function HistoryPage() {
     f === 'all' ? records.length : records.filter(r => toType(r.service) === f).length
 
   return (
-    <div className="min-h-screen flex flex-col bg-cream">
-      <Header />
-
-      <main className="flex-1 px-8 md:px-16 py-10 pt-24">
+    <div className="flex flex-col bg-cream min-h-full">
+      <main className="flex-1 px-8 md:px-16 py-10">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 8 }}

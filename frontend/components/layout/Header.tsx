@@ -19,36 +19,36 @@ const PANEL_W = 720 // all three dropdown cards share this fixed width
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const PRODUCTS = [
-  { name: 'Website', subtitle: 'Full experience, no setup',  Icon: Monitor,  href: '/app' },
-  { name: 'CLI',     subtitle: 'For developers in terminal', Icon: Terminal, href: '#' },
-  { name: 'CROO',   subtitle: 'For AI agents via A2A',      Icon: Zap,      href: '#croo' },
+  { name: 'Website', subtitle: 'Full experience, no setup',  Icon: Monitor,  href: '/products/web' },
+  { name: 'CLI',     subtitle: 'For developers in terminal', Icon: Terminal, href: '/products/cli' },
+  { name: 'CROO',   subtitle: 'For AI agents via A2A',      Icon: Zap,      href: '/products/croo' },
 ]
 
 const SOL_RIGHT = [
-  { name: 'Automate Reasoning',      sub: 'For AI agents & pipelines',    Icon: Zap },
+  { name: 'Automate Reasoning',      sub: 'For AI agents & pipelines',    Icon: Zap,        href: '/solutions/automate-reasoning' },
 ]
 const SOL_CENTER = [
-  { name: 'Make a Hard Decision',    sub: 'When two options feel equal',   Icon: GitBranch },
-  { name: 'Research with Perspective', sub: 'Search + six lenses, one shot', Icon: Search },
+  { name: 'Make a Hard Decision',    sub: 'When two options feel equal',   Icon: GitBranch,  href: '/solutions/make-a-hard-decision' },
+  { name: 'Research with Perspective', sub: 'Search + six lenses, one shot', Icon: Search,   href: '/solutions/research-with-perspective' },
 ]
 const SOL_LEFT  = [
-  { name: 'Validate an Idea',        sub: 'Before you spend time or money', Icon: Lightbulb },
-  { name: 'Stress-Test a Plan',      sub: 'Find blind spots early',         Icon: ShieldCheck },
+  { name: 'Validate an Idea',        sub: 'Before you spend time or money', Icon: Lightbulb,  href: '/solutions/validate-an-idea' },
+  { name: 'Stress-Test a Plan',      sub: 'Find blind spots early',         Icon: ShieldCheck, href: '/solutions/stress-test-a-plan' },
 ]
 
 const MINDS_A = [
-  { name: 'White Hat',  sub: 'Facts & data',        color: '#9AA0A6' },
-  { name: 'Red Hat',    sub: 'Emotion & intuition', color: '#EA4335' },
-  { name: 'Black Hat',  sub: 'Risks & caution',     color: '#3C4043' },
+  { name: 'White Hat',  sub: 'Facts & data',        color: '#9AA0A6', href: '/features/white-hat' },
+  { name: 'Red Hat',    sub: 'Emotion & intuition', color: '#EA4335', href: '/features/red-hat' },
+  { name: 'Black Hat',  sub: 'Risks & caution',     color: '#3C4043', href: '/features/black-hat' },
 ]
 const MINDS_B = [
-  { name: 'Yellow Hat', sub: 'Gains & opportunity',   color: '#FBBC04' },
-  { name: 'Green Hat',  sub: 'Creative alternatives', color: '#34A853' },
-  { name: 'Blue Hat',   sub: 'Synthesis & verdict',   color: BLUE },
+  { name: 'Yellow Hat', sub: 'Gains & opportunity',   color: '#FBBC04', href: '/features/yellow-hat' },
+  { name: 'Green Hat',  sub: 'Creative alternatives', color: '#34A853', href: '/features/green-hat' },
+  { name: 'Blue Hat',   sub: 'Synthesis & verdict',   color: BLUE,      href: '/features/blue-hat' },
 ]
 const ENGINES = [
-  { name: 'Debate Engine',   sub: 'Minds argue before agreeing', Icon: MessageSquare },
-  { name: 'Knowledge Graph', sub: 'Interactive concept map',     Icon: Network },
+  { name: 'Debate Engine',   sub: 'Minds argue before agreeing', Icon: MessageSquare, href: '/features/debate-engine' },
+  { name: 'Knowledge Graph', sub: 'Interactive concept map',     Icon: Network,       href: '/features/knowledge-graph' },
 ]
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
@@ -127,21 +127,21 @@ function SolutionsPanel() {
       
        {/* Right — two stacked */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-        {SOL_LEFT.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} />)}
+        {SOL_LEFT.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} href={s.href} />)}
       </div>
 
       <VDivider />
 
       {/* Centre — two stacked */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-        {SOL_CENTER.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} />)}
+        {SOL_CENTER.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} href={s.href} />)}
       </div>
 
       <VDivider />
 
       {/* Left — single item centred */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
-          {SOL_RIGHT.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} />)}
+          {SOL_RIGHT.map(s => <CardItem key={s.name} name={s.name} sub={s.sub} Icon={s.Icon} href={s.href} />)}
         </div>
     </div>
   )
@@ -152,14 +152,14 @@ function FeaturesPanel() {
     <div style={{ display: 'flex', width: PANEL_W, padding: '10px 8px', alignItems: 'stretch' }}>
       {/* Decision Receipt — flex: 1 (equal share) */}
       <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
-        <CardItem name="Decision Receipt" sub="SHA-256 verifiable output" Icon={FileCheck} />
+        <CardItem name="Decision Receipt" sub="SHA-256 verifiable output" Icon={FileCheck} href="/features/decision-receipt" />
       </div>
 
       <VDivider />
 
       {/* Engines — flex: 1 (equal share) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, justifyContent: 'center', flex: 1, minWidth: 0 }}>
-        {ENGINES.map(e => <CardItem key={e.name} name={e.name} sub={e.sub} Icon={e.Icon} />)}
+        {ENGINES.map(e => <CardItem key={e.name} name={e.name} sub={e.sub} Icon={e.Icon} href={e.href} />)}
       </div>
 
       <VDivider />
@@ -167,10 +167,10 @@ function FeaturesPanel() {
       {/* 6 Minds — flex: 2 (two sub-columns, double share) */}
       <div style={{ display: 'flex', gap: 2, flex: 2, minWidth: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
-          {MINDS_A.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} />)}
+          {MINDS_A.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} href={m.href} />)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
-          {MINDS_B.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} />)}
+          {MINDS_B.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} href={m.href} />)}
         </div>
       </div>
     </div>
@@ -281,7 +281,7 @@ export function Header() {
                 </button>
               ))}
               <Link
-                href="#pricing"
+                href="/pricing"
                 style={{ fontFamily: F, fontSize: 12, fontWeight: 500, color: '#202124', textDecoration: 'none' }}
               >
                 Pricing
@@ -353,10 +353,15 @@ export function Header() {
             boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {['Products', 'Solutions', 'Features', 'Pricing'].map(item => (
-                <a
+              {[
+                ['Products', '/products/web'],
+                ['Solutions', '/solutions/validate-an-idea'],
+                ['Features', '/features/debate-engine'],
+                ['Pricing', '/pricing'],
+              ].map(([item, href]) => (
+                <Link
                   key={item}
-                  href={`#${item.toLowerCase()}`}
+                  href={href}
                   onClick={() => setMobile(false)}
                   style={{
                     fontFamily: F, fontSize: 14, fontWeight: 500, color: '#202124',
@@ -364,7 +369,7 @@ export function Header() {
                   }}
                 >
                   {item}
-                </a>
+                </Link>
               ))}
               <div style={{ borderTop: '1px solid #DADCE0', marginTop: 8, paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <Link

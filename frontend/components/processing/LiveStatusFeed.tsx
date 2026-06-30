@@ -38,7 +38,7 @@ export function LiveStatusFeed({ entries }: LiveStatusFeedProps) {
   }, [entries])
 
   return (
-    <div className="w-full h-48 overflow-y-auto rounded-xl bg-white border border-border p-3 space-y-1.5 font-mono text-xs">
+    <div className="w-full h-40 overflow-y-auto rounded-xl p-3 space-y-1.5 font-mono text-xs" style={{ backgroundColor: '#000', border: '0.5px solid rgba(255,255,255,0.12)' }}>
       <AnimatePresence initial={false}>
         {entries.map((entry) => {
           const mind = entry.mindKey ? MIND_MAP[entry.mindKey] : null
@@ -50,7 +50,7 @@ export function LiveStatusFeed({ entries }: LiveStatusFeedProps) {
               transition={{ duration: 0.2 }}
               className="flex items-start gap-2"
             >
-              <span className="text-muted shrink-0 pt-0.5">
+              <span className="shrink-0 pt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
                 {new Date(entry.time).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </span>
               {mind && (
@@ -64,7 +64,7 @@ export function LiveStatusFeed({ entries }: LiveStatusFeedProps) {
                   [{mind.label}]
                 </span>
               )}
-              <span className="text-slate">{entry.message}</span>
+              <span style={{ color: 'rgba(255,255,255,0.75)' }}>{entry.message}</span>
             </motion.div>
           )
         })}

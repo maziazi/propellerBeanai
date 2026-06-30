@@ -4,7 +4,6 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { MessageSquare, Network, Zap, Users } from 'lucide-react'
-import { Header } from '@/components/layout/Header'
 import { BackButton } from '@/components/layout/BackButton'
 import { DiscussionTimeline } from '@/components/discussion/DiscussionTimeline'
 import { EmergentInsightCard } from '@/components/discussion/EmergentInsightCard'
@@ -74,11 +73,9 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-cream overflow-hidden">
-      <Header />
-
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Top bar */}
-      <div className="border-b border-border px-8 md:px-16 py-2.5 shrink-0 pt-16">
+      <div className="border-b border-border px-8 md:px-16 py-2.5 shrink-0">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <BackButton href={`/results/${id}`} label="Results" />
@@ -191,7 +188,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
         </div>
 
         {/* CENTER — Chat area */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-cream">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           <div className="flex-1 overflow-y-auto p-4">
             {!loaded && (
               <div className="text-center py-10 text-slate font-mono text-xs">Loading discussion...</div>

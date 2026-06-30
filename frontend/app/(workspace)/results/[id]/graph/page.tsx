@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
 import { BackButton } from '@/components/layout/BackButton'
 import { MessageSquare, Network } from 'lucide-react'
 
@@ -26,10 +25,8 @@ export default async function GraphPage({ params }: GraphPageProps) {
   const graphSrc = `${base}/api/graph/${id}`
 
   return (
-    <div className="min-h-screen flex flex-col bg-cream">
-      <Header />
-
-      <div className="px-4 py-6 pt-24">
+    <div className="flex flex-col bg-white min-h-full">
+      <div className="px-4 py-6">
         <div className="max-w-6xl mx-auto space-y-4">
           <BackButton href={`/results/${id}`} label="Back to results" />
           {topic && <h2 className="text-lg font-bold text-navy">&ldquo;{topic}&rdquo;</h2>}
