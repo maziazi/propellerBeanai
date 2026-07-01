@@ -21,10 +21,10 @@ const G = {
 const MINDS_QUICK = [
   { label: 'FACT',  color: G.blue,    bg: G.blueSoft,   desc: 'Data & evidence' },
   { label: 'FEEL',  color: G.red,     bg: G.redSoft,    desc: 'Emotion & gut' },
-  { label: 'RISK',  color: '#3C4043', bg: '#F1F3F4',    desc: 'Risks & traps' },
-  { label: 'GAIN',  color: '#F29900', bg: '#FEF9E7',    desc: 'Opportunity' },
+  { label: 'RISK',  color: '#3C4043', bg: '#F5F5F5',    desc: 'Risks & traps' },
+  { label: 'GAIN',  color: '#F6BB14', bg: '#FFF9E6',    desc: 'Opportunity' },
   { label: 'WILD',  color: G.green,   bg: G.greenSoft,  desc: 'Creative paths' },
-  { label: 'MERGE', color: '#1A73E8', bg: G.blueSoft,   desc: 'Final synthesis' },
+  { label: 'MERGE', color: G.blue,    bg: G.blueSoft,   desc: 'Final synthesis' },
 ]
 
 const EXAMPLES = [

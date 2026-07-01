@@ -42,7 +42,7 @@ export default function HistoryPage() {
     f === 'all' ? records.length : records.filter(r => toType(r.service) === f).length
 
   return (
-    <div className="flex flex-col bg-cream min-h-full">
+    <div className="flex flex-col bg-white min-h-full">
       <main className="flex-1 px-8 md:px-16 py-10">
         <div className="max-w-2xl mx-auto">
           <motion.div
@@ -55,7 +55,7 @@ export default function HistoryPage() {
             </div>
 
             <div className="mb-8">
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-navy mb-2">Analysis History</h1>
+              <h1 className="font-sans font-black tracking-tight text-2xl md:text-3xl text-navy mb-2">Analysis History</h1>
               <p className="text-sm text-slate font-mono">
                 {loading ? 'Loading...' : `${records.length} analyses on record`}
               </p>
@@ -106,7 +106,7 @@ export default function HistoryPage() {
                     >
                       <Link
                         href={`/results/${record.id}`}
-                        className="flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-white hover:bg-cream hover:border-muted transition-all group"
+                        className="flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-white hover:bg-surface hover:border-muted transition-all group"
                       >
                         <div className="flex-1 min-w-0 mr-4">
                           <p className="text-sm text-navy font-medium truncate mb-1">
@@ -118,7 +118,7 @@ export default function HistoryPage() {
                                 'text-xs font-mono px-1.5 py-0.5 rounded border',
                                 type === 'full'
                                   ? 'text-blue bg-blue-soft border-blue/20'
-                                  : 'text-slate bg-cream border-border',
+                                  : 'text-slate bg-surface border-border',
                               )}
                             >
                               {type === 'quick' ? 'Quick' : 'Full'}
