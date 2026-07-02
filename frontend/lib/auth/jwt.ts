@@ -31,8 +31,14 @@ export function signSession(s: Session) {
 }
 
 // Short-lived magic-link token (emailed to the user)
-export function signMagic(email: string) {
-  return sign({ email, t: 'magic' }, '15m')
+export function signMagic(email: string, next?: string) {
+  return sign({ email, next, t: 'magic' }, '15m')
+}
+
+// Only allow internal relative paths as post-login redirect targets (no open redirect).
+export function safeNext(next?: string | null): string {
+  if (next && next.startsWith('/') && !next.startsWith('//')) return next
+  return '/app'
 }
 
 // Short-lived wallet nonce token (carries the exact message to sign)

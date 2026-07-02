@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
-import { signState } from '@/lib/auth/jwt'
+import { signState, safeNext } from '@/lib/auth/jwt'
 
 export const runtime = 'nodejs'
 
 // Kicks off Google OAuth: redirect the user to Google's consent screen.
 export async function GET(req: Request) {
-  const origin = new URL(req.url).origin
+  const url = new URL(req.url)
+  const origin = url.origin
+  const next = safeNext(url.searchParams.get('next'))
   const clientId = process.env.GOOGLE_CLIENT_ID
   if (!clientId) {
     return NextResponse.redirect(new URL('/login?error=google_unconfigured', origin))
@@ -23,8 +25,8 @@ export async function GET(req: Request) {
 
   const res = NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`)
   // Bind the state to the browser so the callback can verify it.
-  res.cookies.set('beanai_oauth_state', state, {
-    httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 600,
-  })
+  const cookieOpts = { httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 600 }
+  res.cookies.set('beanai_oauth_state', state, cookieOpts)
+  res.cookies.set('beanai_oauth_next', next, cookieOpts)
   return res
 }

@@ -8,8 +8,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: Request) {
   let email = ''
+  let next: string | undefined
   try {
-    email = String((await req.json()).email || '').trim().toLowerCase()
+    const body = await req.json()
+    email = String(body.email || '').trim().toLowerCase()
+    if (typeof body.next === 'string') next = body.next
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
@@ -17,7 +20,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Enter a valid email address' }, { status: 400 })
   }
 
-  const token = await signMagic(email)
+  const token = await signMagic(email, next)
   const origin = new URL(req.url).origin
   const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`
 

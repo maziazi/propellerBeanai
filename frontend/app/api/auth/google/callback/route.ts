@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { decodeJwt } from 'jose'
-import { verify, signSession } from '@/lib/auth/jwt'
+import { verify, signSession, safeNext } from '@/lib/auth/jwt'
 import { setSessionCookie } from '@/lib/auth/cookie'
 
 export const runtime = 'nodejs'
@@ -43,10 +43,12 @@ export async function GET(req: Request) {
     const claims = decodeJwt(id_token) as { email?: string; email_verified?: boolean }
     if (!claims.email) return fail()
 
+    const next = safeNext((await cookies()).get('beanai_oauth_next')?.value)
     const session = await signSession({ sub: claims.email.toLowerCase(), method: 'email' })
-    const res = NextResponse.redirect(new URL('/app', origin))
+    const res = NextResponse.redirect(new URL(next, origin))
     setSessionCookie(res, session)
     res.cookies.set('beanai_oauth_state', '', { path: '/', maxAge: 0 })
+    res.cookies.set('beanai_oauth_next', '', { path: '/', maxAge: 0 })
     return res
   } catch {
     return fail()
