@@ -7,21 +7,24 @@ import storage
 router = APIRouter(tags=["analyze"])
 
 
-async def _run_analysis(job_id: str, topic: str, service: str, context: str = None):
+async def _run_analysis(job_id: str, topic: str, service: str, context: str = None, owner: str = None):
     from engine import runner, discussion
     from minds.verifier import verify as verify_sources
     from engine.graph import build as build_graph
 
     try:
-        storage.save(job_id, {"status": "processing", "topic": topic, "service": service})
+        storage.save(job_id, {"status": "processing", "topic": topic, "service": service, "owner": owner})
 
-        # Ronde 1 — semua hat paralel
-        round1 = await runner.run(topic, context)
+        # Ronde 1 — semua hat paralel + quality-refinement loop
+        # quick-scan: 1 retry per hat | full-prism: 2 retries per hat
+        max_retries = 2 if service == "full-prism" else 1
+        round1 = await runner.run(topic, context, max_retries=max_retries)
 
         data = {
             "status": "done",
             "topic": topic,
             "service": service,
+            "owner": owner,
             "duration_seconds": round1.duration_seconds,
             "white_hat":        round1.white.model_dump(),
             "red_hat":          round1.red.model_dump(),
@@ -29,6 +32,7 @@ async def _run_analysis(job_id: str, topic: str, service: str, context: str = No
             "yellow_hat":       round1.yellow.model_dump(),
             "green_hat":        round1.green.model_dump(),
             "initial_blue_hat": round1.blue.model_dump(),
+            "quality_log":      round1.quality_log,
         }
 
         # Ronde 2 — diskusi (hanya untuk full-prism)
@@ -65,16 +69,16 @@ async def _run_analysis(job_id: str, topic: str, service: str, context: str = No
         storage.save(job_id, data)
 
     except Exception as e:
-        storage.save(job_id, {"status": "failed", "error": str(e)})
+        storage.save(job_id, {"status": "failed", "error": str(e), "owner": owner})
 
 
 @router.post("/analyze", response_model=JobResponse)
 async def analyze(body: AnalyzeRequest, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
-    storage.save(job_id, {"status": "queued", "topic": body.topic, "service": body.service})
+    storage.save(job_id, {"status": "queued", "topic": body.topic, "service": body.service, "owner": body.owner})
 
     estimated = 15 if body.service == "quick-scan" else 45
-    background_tasks.add_task(_run_analysis, job_id, body.topic, body.service, body.context)
+    background_tasks.add_task(_run_analysis, job_id, body.topic, body.service, body.context, body.owner)
 
     return JobResponse(job_id=job_id, estimated_seconds=estimated)
 

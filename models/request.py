@@ -7,6 +7,7 @@ class AnalyzeRequest(BaseModel):
     service: Literal["quick-scan", "full-prism", "single-mind"]
     context: Optional[str] = Field(None, max_length=1000)
     callback_url: Optional[str] = None
+    owner: Optional[str] = None  # user id (email/wallet) injected server-side by the web app
 
     model_config = {
         "json_schema_extra": {

@@ -9,8 +9,12 @@ router = APIRouter(tags=["report"])
 
 
 @router.get("/history")
-async def get_history():
+async def get_history(owner: str | None = None):
+    # History is per-user: only reports owned by `owner` are returned.
+    # Without an owner (no signed-in user) we return nothing, never the global list.
     import json as _json
+    if not owner:
+        return []
     records = []
     for path in sorted(REPORTS_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
         try:
@@ -18,6 +22,8 @@ async def get_history():
         except Exception:
             continue
         if data.get("status") != "done":
+            continue
+        if data.get("owner") != owner:
             continue
         blue = data.get("final_blue_hat") or data.get("initial_blue_hat") or {}
         records.append({
@@ -31,9 +37,14 @@ async def get_history():
 
 
 @router.get("/report/{job_id}")
-async def get_report(job_id: str):
+async def get_report(job_id: str, owner: str | None = None):
     data = storage.load(job_id)
     if data is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    # Owner-scoped reports can only be opened by their owner. Legacy reports
+    # without an owner stay publicly viewable by direct link.
+    report_owner = data.get("owner")
+    if report_owner and report_owner != owner:
         raise HTTPException(status_code=404, detail="Report not found")
     if data["status"] != "done":
         raise HTTPException(status_code=202, detail=f"Report not ready. Status: {data['status']}")
