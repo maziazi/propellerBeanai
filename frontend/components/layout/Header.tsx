@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   ChevronDown, Monitor, Terminal, Zap,
   FileCheck, MessageSquare, Network, Menu, X,
-  Lightbulb, ShieldCheck, Search, GitBranch,
+  Lightbulb, ShieldCheck, Search, GitBranch, LogOut,
 } from 'lucide-react'
+import { useAuth, authLabel, authInitial } from '@/lib/auth/useAuth'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -37,14 +39,14 @@ const SOL_LEFT  = [
 ]
 
 const MINDS_A = [
-  { name: 'White Hat',  sub: 'Facts & data',        color: '#9AA0A6', href: '/features/white-hat' },
-  { name: 'Red Hat',    sub: 'Emotion & intuition', color: '#EA4335', href: '/features/red-hat' },
-  { name: 'Black Hat',  sub: 'Risks & caution',     color: '#3C4043', href: '/features/black-hat' },
+  { name: 'White Hat',  sub: 'Facts & data',        color: '#4182EB', image: '/logos/WhiteHat.png',  href: '/features/white-hat' },
+  { name: 'Red Hat',    sub: 'Emotion & intuition', color: '#E24231', image: '/logos/RedHat.png',    href: '/features/red-hat' },
+  { name: 'Black Hat',  sub: 'Risks & caution',     color: '#3C4043', image: '/logos/BlackHat.png',  href: '/features/black-hat' },
 ]
 const MINDS_B = [
-  { name: 'Yellow Hat', sub: 'Gains & opportunity',   color: '#FBBC04', href: '/features/yellow-hat' },
-  { name: 'Green Hat',  sub: 'Creative alternatives', color: '#34A853', href: '/features/green-hat' },
-  { name: 'Blue Hat',   sub: 'Synthesis & verdict',   color: BLUE,      href: '/features/blue-hat' },
+  { name: 'Yellow Hat', sub: 'Gains & opportunity',   color: '#F6BB14', image: '/logos/YellowHat.png', href: '/features/yellow-hat' },
+  { name: 'Green Hat',  sub: 'Creative alternatives', color: '#169F53', image: '/logos/GreenHat.png',  href: '/features/green-hat' },
+  { name: 'Blue Hat',   sub: 'Synthesis & verdict',   color: BLUE,      image: '/logos/BlueHat.png',   href: '/features/blue-hat' },
 ]
 const ENGINES = [
   { name: 'Debate Engine',   sub: 'Minds argue before agreeing', Icon: MessageSquare, href: '/features/debate-engine' },
@@ -53,7 +55,7 @@ const ENGINES = [
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
-function IconBox({ color, Icon }: { color?: string; Icon?: React.ElementType }) {
+function IconBox({ color, Icon, image }: { color?: string; Icon?: React.ElementType; image?: string }) {
   return (
     <div
       className="icon-box"
@@ -65,7 +67,9 @@ function IconBox({ color, Icon }: { color?: string; Icon?: React.ElementType }) 
         transition: 'background-color 0.15s ease, border-color 0.15s ease',
       }}
     >
-      {Icon
+      {image
+        ? <Image src={image} alt="" width={20} height={20} style={{ pointerEvents: 'none' }} />
+        : Icon
         ? <Icon size={13} color={color || '#5F6368'} />
         : <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: color || '#9AA0A6' }} />
       }
@@ -74,8 +78,8 @@ function IconBox({ color, Icon }: { color?: string; Icon?: React.ElementType }) 
 }
 
 // [icon] [name / subtitle]
-function CardItem({ name, sub, Icon, color, href }: {
-  name: string; sub?: string; Icon?: React.ElementType; color?: string; href?: string
+function CardItem({ name, sub, Icon, color, image, href }: {
+  name: string; sub?: string; Icon?: React.ElementType; color?: string; image?: string; href?: string
 }) {
   const inner = (
     <div
@@ -88,7 +92,7 @@ function CardItem({ name, sub, Icon, color, href }: {
         flex: 1,
       }}
     >
-      <IconBox color={color} Icon={Icon} />
+      <IconBox color={color} Icon={Icon} image={image} />
       <div style={{ minWidth: 0 }}>
         <p className="card-name" style={{ fontFamily: F, fontSize: 12, fontWeight: 600, color: '#202124', lineHeight: 1.3, transition: 'color 0.15s ease', whiteSpace: 'nowrap' }}>{name}</p>
         {sub && <p className="card-sub" style={{ fontFamily: F, fontSize: 11, color: '#5F6368', marginTop: 1, lineHeight: 1.3, transition: 'color 0.15s ease' }}>{sub}</p>}
@@ -167,10 +171,10 @@ function FeaturesPanel() {
       {/* 6 Minds — flex: 2 (two sub-columns, double share) */}
       <div style={{ display: 'flex', gap: 2, flex: 2, minWidth: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
-          {MINDS_A.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} href={m.href} />)}
+          {MINDS_A.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} image={m.image} href={m.href} />)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
-          {MINDS_B.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} href={m.href} />)}
+          {MINDS_B.map(m => <CardItem key={m.name} name={m.name} sub={m.sub} color={m.color} image={m.image} href={m.href} />)}
         </div>
       </div>
     </div>
@@ -183,6 +187,7 @@ export function Header() {
   const [menu, setMenu] = useState<MenuKey>(null)
   const [mobile, setMobile] = useState(false)
   const ref = useRef<HTMLElement>(null)
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -249,13 +254,9 @@ export function Header() {
 
           {/* Left: logo + nav */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', flexShrink: 0 }}>
-              <span style={{ display: 'flex', gap: 3 }}>
-                {[BLUE, '#EA4335', '#FBBC04', '#34A853'].map((c, i) => (
-                  <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: c, display: 'block' }} />
-                ))}
-              </span>
-              <span style={{ fontFamily: F, fontWeight: 700, fontSize: 15, color: '#202124', letterSpacing: '-0.01em' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
+              <Image src="/logos/PropellerBeanAI.png" alt="BeanAI" width={28} height={28} style={{ borderRadius: 6 }} />
+              <span style={{ fontFamily: F, fontWeight: 700, fontSize: 15, color: '#000', letterSpacing: '-0.01em' }}>
                 Bean<span style={{ color: BLUE }}>AI</span>
               </span>
             </Link>
@@ -290,27 +291,39 @@ export function Header() {
           </div>
 
           {/* Right: Login · Get Started */}
-          <div className="hidden md:flex" style={{ alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
-            <Link
-              href="/login"
-              style={{ fontFamily: F, fontSize: 12, fontWeight: 500, color: '#202124', textDecoration: 'none' }}
-            >
-              Login
-            </Link>
-            <Link
-              href="/app"
-              style={{
-                fontFamily: F, fontSize: 12, fontWeight: 600,
-                color: '#FFFFFF', backgroundColor: BLUE,
-                border: '0.5px solid rgba(0,0,0,0.75)',
-                borderRadius: 90, padding: '7px 18px',
-                textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Get Started
-            </Link>
-          </div>
+          {user ? (
+            <div className="hidden md:flex" style={{ alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+              <Link href="/app" title={authLabel(user)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                <span style={{ width: 26, height: 26, borderRadius: '50%', backgroundColor: BLUE, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: F, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{authInitial(user)}</span>
+                <span style={{ fontFamily: F, fontSize: 12, fontWeight: 500, color: '#202124', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{authLabel(user)}</span>
+              </Link>
+              <button onClick={logout} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'none', border: '0.5px solid rgba(0,0,0,0.22)', borderRadius: 90, padding: '6px 12px', fontFamily: F, fontSize: 12, fontWeight: 500, color: '#202124', cursor: 'pointer' }}>
+                <LogOut size={13} /> Log out
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:flex" style={{ alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
+              <Link
+                href="/login"
+                style={{ fontFamily: F, fontSize: 12, fontWeight: 500, color: '#202124', textDecoration: 'none' }}
+              >
+                Login
+              </Link>
+              <Link
+                href="/app"
+                style={{
+                  fontFamily: F, fontSize: 12, fontWeight: 600,
+                  color: '#FFFFFF', backgroundColor: BLUE,
+                  border: '0.5px solid rgba(0,0,0,0.75)',
+                  borderRadius: 90, padding: '7px 18px',
+                  textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
 
           {/* Mobile hamburger */}
           <button
@@ -372,26 +385,47 @@ export function Header() {
                 </Link>
               ))}
               <div style={{ borderTop: '1px solid #DADCE0', marginTop: 8, paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <Link
-                  href="/login"
-                  onClick={() => setMobile(false)}
-                  style={{ fontFamily: F, fontSize: 14, fontWeight: 500, color: '#202124', padding: '10px 12px', textDecoration: 'none', display: 'block' }}
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/app"
-                  onClick={() => setMobile(false)}
-                  style={{
-                    fontFamily: F, fontSize: 14, fontWeight: 600, color: '#FFFFFF',
-                    backgroundColor: BLUE, borderRadius: 90,
-                    border: '0.5px solid rgba(0,0,0,0.75)',
-                    padding: '10px 20px', textDecoration: 'none',
-                    display: 'block', textAlign: 'center',
-                  }}
-                >
-                  Get Started
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/app"
+                      onClick={() => setMobile(false)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', textDecoration: 'none' }}
+                    >
+                      <span style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: BLUE, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: F, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{authInitial(user)}</span>
+                      <span style={{ fontFamily: F, fontSize: 14, fontWeight: 500, color: '#202124', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{authLabel(user)}</span>
+                    </Link>
+                    <button
+                      onClick={() => { setMobile(false); logout() }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: '0.5px solid rgba(0,0,0,0.22)', borderRadius: 90, padding: '10px 20px', fontFamily: F, fontSize: 14, fontWeight: 500, color: '#202124', cursor: 'pointer', justifyContent: 'center' }}
+                    >
+                      <LogOut size={15} /> Log out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobile(false)}
+                      style={{ fontFamily: F, fontSize: 14, fontWeight: 500, color: '#202124', padding: '10px 12px', textDecoration: 'none', display: 'block' }}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/app"
+                      onClick={() => setMobile(false)}
+                      style={{
+                        fontFamily: F, fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+                        backgroundColor: BLUE, borderRadius: 90,
+                        border: '0.5px solid rgba(0,0,0,0.75)',
+                        padding: '10px 20px', textDecoration: 'none',
+                        display: 'block', textAlign: 'center',
+                      }}
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

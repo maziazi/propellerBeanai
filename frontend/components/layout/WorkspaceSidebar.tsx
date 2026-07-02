@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,6 +9,9 @@ import {
   Plus, Search, PanelLeftClose, PanelLeft,
   MessageSquare, Settings, ChevronRight,
 } from 'lucide-react'
+import { BrandPlaceholder } from '@/components/brand/Propeller'
+import { useAuth, authLabel, authInitial } from '@/lib/auth/useAuth'
+import { LogOut } from 'lucide-react'
 
 const G = {
   blue:     '#4182EB',
@@ -55,11 +59,11 @@ export function WorkspaceSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [query, setQuery] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { user, logout } = useAuth()
 
   // Refetch history whenever we land on a new route (e.g. after an analysis completes)
   useEffect(() => {
-    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
-    fetch(`${base}/api/history`, { cache: 'no-store' })
+    fetch(`/api/history`, { cache: 'no-store' })
       .then(r => r.ok ? r.json() : [])
       .then(data => { setHistory(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
@@ -118,11 +122,7 @@ export function WorkspaceSidebar() {
         <div className="flex items-center justify-between h-14 px-3 shrink-0">
           {!collapsed && (
             <Link href="/" className="flex items-center gap-2 min-w-0">
-              <span className="flex gap-[3px]">
-                {[G.blue, G.red, G.yellow, G.green].map((c, i) => (
-                  <span key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
-                ))}
-              </span>
+              <Image src="/logos/PropellerBeanAI.png" alt="BeanAI" width={26} height={26} style={{ borderRadius: 6, flexShrink: 0 }} />
               <span className="font-bold text-[15px] truncate">
                 Bean<span style={{ color: G.blue }}>AI</span>
               </span>
@@ -195,9 +195,13 @@ export function WorkspaceSidebar() {
               ))}
             </div>
           ) : grouped.length === 0 ? (
-            <p className="text-xs px-2 pt-4" style={{ color: '#9AA0A6' }}>
-              {query ? 'No matches.' : 'No analyses yet.'}
-            </p>
+            query ? (
+              <p className="text-xs px-2 pt-4" style={{ color: '#9AA0A6' }}>No matches.</p>
+            ) : (
+              <div className="pt-8 px-2">
+                <BrandPlaceholder size={44} title="No analyses yet" muted />
+              </div>
+            )
           ) : (
             grouped.map(([label, items]) => (
               <div key={label} className="mb-3">
@@ -241,27 +245,63 @@ export function WorkspaceSidebar() {
 
         {/* Account footer */}
         <div className="shrink-0 p-2" style={{ borderTop: `1px solid ${G.border}` }}>
-          <button
-            className={[
-              'flex items-center rounded-xl transition-colors hover:bg-black/5 w-full',
-              collapsed ? 'justify-center h-11' : 'gap-2.5 px-2 py-2',
-            ].join(' ')}
-            title="Account"
-          >
-            <span
-              className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
-              style={{ backgroundColor: G.text }}
+          {user ? (
+            <div
+              className={[
+                'flex items-center rounded-xl w-full',
+                collapsed ? 'justify-center h-11' : 'gap-2.5 px-2 py-2',
+              ].join(' ')}
+              title={authLabel(user)}
             >
-              U
-            </span>
-            {!collapsed && (
-              <span className="flex-1 min-w-0 text-left">
-                <span className="block text-[13px] font-medium truncate">Your workspace</span>
-                <span className="block text-[11px] truncate" style={{ color: G.text2 }}>All features unlocked</span>
+              <span
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+                style={{ backgroundColor: G.blue }}
+              >
+                {authInitial(user)}
               </span>
-            )}
-            {!collapsed && <Settings size={15} style={{ color: G.text2 }} />}
-          </button>
+              {!collapsed && (
+                <>
+                  <span className="flex-1 min-w-0 text-left">
+                    <span className="block text-[13px] font-medium truncate">{authLabel(user)}</span>
+                    <span className="block text-[11px] truncate" style={{ color: G.text2 }}>
+                      {user.method === 'wallet' ? 'Wallet' : 'Email'} · signed in
+                    </span>
+                  </span>
+                  <button
+                    onClick={logout}
+                    title="Log out"
+                    className="shrink-0 p-1.5 rounded-lg transition-colors hover:bg-black/5"
+                  >
+                    <LogOut size={15} style={{ color: G.text2 }} />
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className={[
+                'flex items-center rounded-xl transition-colors hover:bg-black/5 w-full',
+                collapsed ? 'justify-center h-11' : 'gap-2.5 px-2 py-2',
+              ].join(' ')}
+              title="Sign in"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <span
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+                style={{ backgroundColor: G.text }}
+              >
+                U
+              </span>
+              {!collapsed && (
+                <span className="flex-1 min-w-0 text-left">
+                  <span className="block text-[13px] font-medium truncate">Sign in</span>
+                  <span className="block text-[11px] truncate" style={{ color: G.text2 }}>Save your analyses</span>
+                </span>
+              )}
+              {!collapsed && <Settings size={15} style={{ color: G.text2 }} />}
+            </Link>
+          )}
         </div>
       </aside>
     </>

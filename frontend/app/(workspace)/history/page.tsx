@@ -7,6 +7,7 @@ import { ConfidenceScore } from '@/components/shared/ConfidenceScore'
 import { MonoText } from '@/components/shared/MonoText'
 import { Clock, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandPlaceholder } from '@/components/brand/Propeller'
 
 type Filter = 'all' | 'quick' | 'full'
 
@@ -24,10 +25,9 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
-    fetch(`${base}/api/history`, { cache: 'no-store' })
+    fetch(`/api/history`, { cache: 'no-store' })
       .then(r => r.ok ? r.json() : [])
-      .then(data => { setRecords(data); setLoading(false) })
+      .then(data => { setRecords(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
@@ -145,8 +145,8 @@ export default function HistoryPage() {
                 })}
 
                 {filtered.length === 0 && (
-                  <div className="text-center py-16">
-                    <p className="text-slate font-mono text-sm">No analyses found.</p>
+                  <div className="py-16 flex justify-center">
+                    <BrandPlaceholder title="No analyses yet" subtitle="Your past decisions will show up here once you run your first analysis." muted />
                   </div>
                 )}
               </div>

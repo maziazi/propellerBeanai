@@ -11,6 +11,7 @@ const YELLOW = '#F6BB14'
 const RED    = '#E24231'
 const F = "'TWK Lausanne Pan', var(--font-inter), Inter, -apple-system, sans-serif"
 const DEMO_ID = 'a4e2831f-56b0-45da-adac-824f60e44f1e'
+const CROO_STORE_URL = process.env.NEXT_PUBLIC_CROO_STORE_URL || 'https://agent.croo.network'
 
 // ── App Preview mockup ────────────────────────────────────────────────────────
 function AppPreview() {
@@ -434,9 +435,9 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <Link href="#croo" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, backgroundColor: BLUE, color: '#FFF', border: '0.5px solid rgba(0,0,0,0.75)', borderRadius: 90, padding: '12px 26px', fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: F }}>
+            <a href={CROO_STORE_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, backgroundColor: BLUE, color: '#FFF', border: '0.5px solid rgba(0,0,0,0.75)', borderRadius: 90, padding: '12px 26px', fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: F }}>
               View BeanAI on CROO Agent Store <ArrowRight size={14} />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

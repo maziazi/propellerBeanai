@@ -13,15 +13,16 @@ interface ChatInputProps {
   onSend: (message: DiscussionMessage) => void
   totalAdded: number
   currentRound: number
+  busy?: boolean
 }
 
-export function ChatInput({ onSend, totalAdded, currentRound }: ChatInputProps) {
+export function ChatInput({ onSend, totalAdded, currentRound, busy = false }: ChatInputProps) {
   const [value, setValue] = useState('')
   const [focused, setFocused] = useState(false)
 
   const remaining = MAX_CHARS - value.length
   const isOverLimit = remaining < 0
-  const canSend = value.trim().length > 0 && !isOverLimit
+  const canSend = value.trim().length > 0 && !isOverLimit && !busy
 
   const handleSend = () => {
     if (!canSend) return
@@ -92,8 +93,9 @@ export function ChatInput({ onSend, totalAdded, currentRound }: ChatInputProps) 
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a question or challenge any mind... (Enter to send)"
-          className="flex-1 resize-none bg-transparent text-sm text-navy placeholder:text-muted outline-none min-h-[36px] max-h-[120px] leading-relaxed py-1"
+          disabled={busy}
+          placeholder={busy ? 'The panel is responding…' : 'Ask a question or challenge any mind... (Enter to send)'}
+          className="flex-1 resize-none bg-transparent text-sm text-navy placeholder:text-muted outline-none min-h-[36px] max-h-[120px] leading-relaxed py-1 disabled:opacity-60"
           rows={1}
         />
 

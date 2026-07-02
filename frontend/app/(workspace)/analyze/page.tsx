@@ -1,9 +1,11 @@
 'use client'
 
+import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LiveStatusFeed, type StatusEntry } from '@/components/processing/LiveStatusFeed'
+import { PropellerSpinner } from '@/components/brand/Propeller'
 import { useBeanAIStore } from '@/lib/store'
 import { MINDS, MIND_MAP } from '@/lib/minds'
 import type { MindKey, MindStatus } from '@/lib/types'
@@ -74,20 +76,29 @@ function MindCard({ mindKey, status, index }: { mindKey: MindKey; status: MindSt
         gap: 8,
       }}
     >
-      {/* Top row: label + status dot */}
+      {/* Top row: hat image + label + status dot */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{
-          fontFamily: 'monospace',
-          fontSize: 10,
-          fontWeight: 700,
-          padding: '2px 8px',
-          borderRadius: 90,
-          backgroundColor: (isAnalyzing || isDone) ? mind.accent : 'rgba(0,0,0,0.06)',
-          color: (isAnalyzing || isDone) ? (mind.label === 'GAIN' ? '#000' : '#fff') : '#9AA0A6',
-          transition: 'all 0.3s ease',
-        }}>
-          {mind.label}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Image
+            src={mind.image}
+            alt={mind.label}
+            width={24}
+            height={24}
+            style={{ opacity: isWaiting ? 0.35 : 1, transition: 'opacity 0.3s ease', flexShrink: 0 }}
+          />
+          <span style={{
+            fontFamily: 'monospace',
+            fontSize: 10,
+            fontWeight: 700,
+            padding: '2px 8px',
+            borderRadius: 90,
+            backgroundColor: (isAnalyzing || isDone) ? mind.accent : 'rgba(0,0,0,0.06)',
+            color: (isAnalyzing || isDone) ? (mind.label === 'GAIN' ? '#000' : '#fff') : '#9AA0A6',
+            transition: 'all 0.3s ease',
+          }}>
+            {mind.label}
+          </span>
+        </div>
 
         {isDone && (
           <motion.span
@@ -272,7 +283,8 @@ export default function AnalyzePage() {
           {/* ── Topic header ── */}
           <div style={{ borderBottom: '0.5px solid rgba(0,0,0,0.08)', paddingBottom: 20, marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9AA0A6', letterSpacing: '0.06em' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontFamily: 'monospace', fontSize: 11, color: '#9AA0A6', letterSpacing: '0.06em' }}>
+                {doneCount < totalMinds && <PropellerSpinner size={22} />}
                 {analysisType === 'quick' ? 'QUICK SCAN' : 'FULL ANALYSIS'}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

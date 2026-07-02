@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import type { MindResult } from '@/lib/types'
@@ -80,7 +81,7 @@ export function MindPanel({ result }: MindPanelProps) {
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-black/5 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="text-base">{mind.icon}</span>
+          <Image src={mind.image} alt={mind.label} width={28} height={28} style={{ flexShrink: 0 }} />
           <div className="text-left">
             <div className="flex items-center gap-2">
               <span

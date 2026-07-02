@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { Mail, Wallet, ArrowRight, Check, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { BLUE, GREEN, RED, F } from '@/components/marketing/Shell'
+import { BrandMark } from '@/components/brand/Propeller'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -41,6 +42,9 @@ function LoginCard() {
   const [walletState, setWalletState] = useState<'idle' | 'busy' | 'error'>('idle')
   const [walletMsg, setWalletMsg] = useState('')
 
+  const nextParam = params.get('next')
+  const next = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/app'
+
   const err = params.get('error')
   const oauthMsg =
     err === 'google_unconfigured' ? 'Google sign-in isn’t configured yet.'
@@ -52,7 +56,7 @@ function LoginCard() {
     if (!EMAIL_RE.test(email)) { setEmailState('error'); setEmailMsg('Enter a valid email address'); return }
     setEmailState('sending'); setEmailMsg(''); setDevLink(null)
     try {
-      const r = await fetch('/api/auth/email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
+      const r = await fetch('/api/auth/email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, next }) })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Something went wrong')
       setEmailState('sent')
@@ -82,7 +86,7 @@ function LoginCard() {
       })
       const data = await verifyRes.json()
       if (!verifyRes.ok) throw new Error(data.error || 'Verification failed')
-      router.push('/app')
+      router.push(next)
     } catch (err) {
       const m = err instanceof Error ? err.message : 'Connection failed'
       setWalletState('error')
@@ -93,14 +97,12 @@ function LoginCard() {
   return (
     <div style={{ width: '100%', maxWidth: 400, backgroundColor: '#FFF', border: '0.5px solid rgba(0,0,0,0.85)', borderRadius: 16, boxShadow: '0 18px 50px rgba(0,0,0,0.10)', overflow: 'hidden' }}>
       <div style={{ padding: '28px 28px 0', textAlign: 'center' }}>
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', marginBottom: 14 }}>
-          <span style={{ display: 'flex', gap: 3 }}>
-            {[BLUE, RED, '#F6BA18', GREEN].map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: c, display: 'block' }} />)}
-          </span>
+        <Link href="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 6, textDecoration: 'none', marginBottom: 14 }}>
+          <BrandMark size={44} />
           <span style={{ fontFamily: F, fontWeight: 700, fontSize: 16, color: '#202124' }}>Bean<span style={{ color: BLUE }}>AI</span></span>
         </Link>
         <h1 style={{ fontFamily: F, fontSize: 22, fontWeight: 800, color: '#000', letterSpacing: '-0.02em', marginBottom: 4 }}>Welcome back</h1>
-        <p style={{ fontFamily: F, fontSize: 13.5, color: '#5F6368' }}>Sign in with email or your wallet.</p>
+        <p style={{ fontFamily: F, fontSize: 13.5, color: '#5F6368' }}>Sign in with email, Google, or your wallet.</p>
       </div>
 
       <div style={{ padding: 28 }}>
@@ -152,7 +154,7 @@ function LoginCard() {
 
         {/* Google (left) · MetaMask (right) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <a href="/api/auth/google"
+          <a href={`/api/auth/google?next=${encodeURIComponent(next)}`}
             style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#FFF', color: '#202124', border: '0.5px solid rgba(0,0,0,0.35)', borderRadius: 90, padding: '11px 16px', fontSize: 14, fontWeight: 600, fontFamily: F, textDecoration: 'none' }}>
             <GoogleIcon size={16} /> Google
           </a>

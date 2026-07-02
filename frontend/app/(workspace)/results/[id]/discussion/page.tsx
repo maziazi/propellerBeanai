@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { MessageSquare, Network, Zap, Users } from 'lucide-react'
+import { MessageSquare, Network, Zap, Users, Loader2, Sparkles } from 'lucide-react'
+import { postDiscuss, getReport } from '@/lib/api'
 import { BackButton } from '@/components/layout/BackButton'
-import { DiscussionTimeline } from '@/components/discussion/DiscussionTimeline'
+import { LiveDebate } from '@/components/discussion/LiveDebate'
 import { EmergentInsightCard } from '@/components/discussion/EmergentInsightCard'
 import { MergeSynthesisCard } from '@/components/discussion/MergeSynthesisCard'
 import { ChatInput } from '@/components/discussion/ChatInput'
@@ -21,6 +22,10 @@ import { reportToDiscussionMessages, reportToEmergentInsights, reportToMergeSynt
 
 const COST_PER_MESSAGE = 0.05
 const BASE_COST = 0.45
+
+// Backend uses hat names; the UI uses mind keys.
+const HAT_TO_MIND: Record<string, string> = { white: 'fact', red: 'feel', black: 'risk', yellow: 'gain', green: 'wild', blue: 'merge' }
+const MIND_TO_HAT: Record<string, string> = { fact: 'white', feel: 'red', risk: 'black', gain: 'yellow', wild: 'green', merge: 'blue' }
 
 const USER_PARTICIPANT = {
   key: 'user',
@@ -39,16 +44,38 @@ interface DiscussionPageProps {
 export default function DiscussionPage({ params }: DiscussionPageProps) {
   const { id } = use(params)
 
-  // We'll load the report client-side once on mount
+  // We'll load the report client-side once on mount (owner-scoped)
   const [report, setReport] = useState<Record<string, unknown> | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [genErr, setGenErr] = useState('')
 
-  useEffect(() => {
-    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
-    fetch(`${base}/api/report/${id}`, { cache: 'no-store' })
+  const load = useCallback(() => {
+    return fetch(`/api/report/${id}`, { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
       .then(data => { setReport(data); setLoaded(true) })
       .catch(() => setLoaded(true))
+  }, [id])
+
+  useEffect(() => { void load() }, [load])
+
+  const hasDiscussion = !!(report && (report as Record<string, unknown>).discussion)
+
+  const generate = useCallback(async () => {
+    setGenerating(true); setGenErr('')
+    try {
+      await postDiscuss(id)
+      // Poll the report until the debate round is written back
+      for (let i = 0; i < 40; i++) {
+        await new Promise(r => setTimeout(r, 3000))
+        const rep = await getReport(id).catch(() => null)
+        if (rep && (rep as Record<string, unknown>).discussion) { setReport(rep); break }
+      }
+    } catch (e) {
+      setGenErr(e instanceof Error ? e.message : 'Failed to generate discussion')
+    } finally {
+      setGenerating(false)
+    }
   }, [id])
 
   const question = (report?.topic as string) ?? DEMO_QUESTION
@@ -59,6 +86,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
   const [messages, setMessages] = useState<DiscussionMessage[]>([])
   const [userMessageCount, setUserMessageCount] = useState(0)
   const [activeMember, setActiveMember] = useState<string | null>(null)
+  const [responding, setResponding] = useState(false)
 
   // Merge initial messages from report when loaded
   const allMessages = [...initialMessages, ...messages]
@@ -67,9 +95,40 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
   const currentRound = allMessages.reduce((max, m) => Math.max(max, m.round), 1)
   const participants = [...MINDS, USER_PARTICIPANT]
 
-  const handleSend = (msg: DiscussionMessage) => {
-    setMessages((prev) => [...prev, msg])
-    setUserMessageCount((c) => c + 1)
+  const handleSend = async (msg: DiscussionMessage) => {
+    // Put the user turn (and the panel's replies) in a fresh round after the debate
+    const nextRound = allMessages.reduce((max, m) => Math.max(max, m.round), 1) + 1
+    const userMsg: DiscussionMessage = { ...msg, round: nextRound }
+    const priorHistory = [...allMessages, userMsg].map(m => ({
+      from: m.from === 'user' ? 'user' : (MIND_TO_HAT[m.from] ?? m.from),
+      content: m.content,
+    }))
+
+    setMessages(prev => [...prev, userMsg])
+    setUserMessageCount(c => c + 1)
+    setResponding(true)
+    try {
+      const r = await fetch(`/api/chat/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg.content, history: priorHistory }),
+      })
+      const data = await r.json()
+      const replies: DiscussionMessage[] = (data.replies ?? []).map((rep: { hat: string; to: string; content: string }, i: number) => ({
+        id: `chat-${nextRound}-${i}-${Date.now()}`,
+        from: (HAT_TO_MIND[rep.hat] ?? 'merge') as DiscussionMessage['from'],
+        to: (rep.to === 'user' || rep.to === 'all' ? 'all' : (HAT_TO_MIND[rep.to] ?? 'all')) as DiscussionMessage['to'],
+        content: rep.content,
+        type: 'response',
+        round: nextRound,
+        timestamp: Date.now() + i,
+      }))
+      setMessages(prev => [...prev, ...replies])
+    } catch {
+      // ignore — user can resend
+    } finally {
+      setResponding(false)
+    }
   }
 
   return (
@@ -193,7 +252,44 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
             {!loaded && (
               <div className="text-center py-10 text-slate font-mono text-xs">Loading discussion...</div>
             )}
-            <DiscussionTimeline messages={allMessages} autoScroll />
+
+            {loaded && report && !hasDiscussion && messages.length === 0 && (
+              <div className="max-w-md mx-auto text-center py-10">
+                <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#EEF4FF', color: '#4182EB' }}>
+                  <MessageSquare size={22} />
+                </div>
+                <h3 className="text-base font-bold text-navy mb-1.5">No debate round yet</h3>
+                <p className="text-[13px] text-slate leading-relaxed mb-5">
+                  Run Round 2 — every mind reads the others and pushes back. Conflicts surface and the verdict sharpens.
+                </p>
+                <button
+                  onClick={generate}
+                  disabled={generating}
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-70"
+                  style={{ backgroundColor: '#4182EB', border: '0.5px solid rgba(0,0,0,0.75)' }}
+                >
+                  {generating
+                    ? <><Loader2 size={15} className="animate-spin" /> Minds are debating…</>
+                    : <><Sparkles size={15} /> Generate discussion</>}
+                </button>
+                {generating && <p className="text-[11px] text-muted font-mono mt-3">This runs the panel again — usually ~30s.</p>}
+                {genErr && <p className="text-[12px] mt-3" style={{ color: '#E24231' }}>{genErr}</p>}
+              </div>
+            )}
+
+            {loaded && allMessages.length > 0 && <LiveDebate messages={allMessages} />}
+
+            {responding && (
+              <div className="flex items-center gap-2 mt-3 px-1">
+                <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm px-4 py-3 border" style={{ backgroundColor: '#F1F3F4', borderColor: 'rgba(0,0,0,0.08)' }}>
+                  {[0, 1, 2].map(i => (
+                    <motion.span key={i} className="block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#5F6368' }}
+                      animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }} />
+                  ))}
+                </div>
+                <span className="text-[11px] font-mono text-muted italic">the panel is responding…</span>
+              </div>
+            )}
 
             {emergentInsights.length > 0 && (
               <div className="mt-6 space-y-3">
@@ -216,6 +312,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
               onSend={handleSend}
               totalAdded={totalAdded}
               currentRound={currentRound}
+              busy={responding}
             />
           </div>
         </div>

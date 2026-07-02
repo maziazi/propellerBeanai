@@ -4,6 +4,7 @@ import { ReportHeader, type Verdict } from '@/components/results/ReportHeader'
 import { MindPanelList } from '@/components/results/MindPanelList'
 import { MessageSquare, Network } from 'lucide-react'
 import { reportToMindResults, reportConfidence } from '@/lib/transform'
+import { getSessionUser, BACKEND } from '@/lib/auth/session'
 
 const GREEN = '#169F53'
 const F = "'TWK Lausanne Pan', var(--font-inter), Inter, -apple-system, sans-serif"
@@ -20,9 +21,10 @@ interface ResultsPageProps {
 }
 
 async function fetchReport(id: string) {
-  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  const user = await getSessionUser()
+  const q = user ? `?owner=${encodeURIComponent(user.id)}` : ''
   try {
-    const res = await fetch(`${base}/api/report/${id}`, { cache: 'no-store' })
+    const res = await fetch(`${BACKEND}/api/report/${id}${q}`, { cache: 'no-store' })
     if (!res.ok) return null
     return res.json()
   } catch {

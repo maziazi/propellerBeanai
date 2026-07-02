@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { HeroInputCard } from '@/components/home/HeroInputCard'
@@ -19,12 +20,12 @@ const G = {
 }
 
 const MINDS_QUICK = [
-  { label: 'FACT',  color: G.blue,    bg: G.blueSoft,   desc: 'Data & evidence' },
-  { label: 'FEEL',  color: G.red,     bg: G.redSoft,    desc: 'Emotion & gut' },
-  { label: 'RISK',  color: '#3C4043', bg: '#F5F5F5',    desc: 'Risks & traps' },
-  { label: 'GAIN',  color: '#F6BB14', bg: '#FFF9E6',    desc: 'Opportunity' },
-  { label: 'WILD',  color: G.green,   bg: G.greenSoft,  desc: 'Creative paths' },
-  { label: 'MERGE', color: G.blue,    bg: G.blueSoft,   desc: 'Final synthesis' },
+  { label: 'FACT',  color: G.blue,    bg: G.blueSoft,   desc: 'Data & evidence',  image: '/logos/WhiteHat.png'  },
+  { label: 'FEEL',  color: G.red,     bg: G.redSoft,    desc: 'Emotion & gut',    image: '/logos/RedHat.png'    },
+  { label: 'RISK',  color: '#3C4043', bg: '#F5F5F5',    desc: 'Risks & traps',    image: '/logos/BlackHat.png'  },
+  { label: 'GAIN',  color: '#F6BB14', bg: '#FFF9E6',    desc: 'Opportunity',      image: '/logos/YellowHat.png' },
+  { label: 'WILD',  color: G.green,   bg: G.greenSoft,  desc: 'Creative paths',   image: '/logos/GreenHat.png'  },
+  { label: 'MERGE', color: G.blue,    bg: G.blueSoft,   desc: 'Final synthesis',  image: '/logos/BlueHat.png'   },
 ]
 
 const EXAMPLES = [
@@ -113,6 +114,7 @@ export default function AppDashboard() {
                 className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl"
                 style={{ backgroundColor: m.bg, border: `1px solid ${m.color}20` }}
               >
+                <Image src={m.image} alt={m.label} width={28} height={28} />
                 <span
                   className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: m.color, color: m.label === 'GAIN' ? '#202124' : '#fff' }}
