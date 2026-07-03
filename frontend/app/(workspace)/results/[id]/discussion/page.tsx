@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MessageSquare, Network, Zap, Users, Loader2, Sparkles } from 'lucide-react'
 import { postDiscuss, getReport } from '@/lib/api'
@@ -175,6 +176,7 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
           <div className="flex-1 overflow-y-auto py-2">
             {participants.map((p) => {
               const isUser = p.key === 'user'
+              const avatarImg = (p as { image?: string }).image
               const msgCount = allMessages.filter((m) => m.from === p.key).length
               const isActive = activeMember === p.key
 
@@ -188,14 +190,16 @@ export default function DiscussionPage({ params }: DiscussionPageProps) {
                   )}
                 >
                   <div
-                    className="shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-mono font-bold"
+                    className="shrink-0 w-8 h-8 rounded-full border-2 overflow-hidden flex items-center justify-center text-[10px] font-mono font-bold"
                     style={{
                       backgroundColor: p.bg,
                       borderColor: p.accent,
                       color: p.accent,
                     }}
                   >
-                    {p.label.slice(0, 2)}
+                    {avatarImg
+                      ? <Image src={avatarImg} alt={p.label} width={32} height={32} className="w-full h-full object-cover" />
+                      : p.label.slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">

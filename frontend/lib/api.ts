@@ -1,4 +1,5 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+const PROXY = '/proxy'
 
 export interface ClarifyResponse {
   is_vague: boolean
@@ -22,7 +23,7 @@ export interface StatusResponse {
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${PROXY}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -35,7 +36,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { cache: 'no-store' })
+  const res = await fetch(`${PROXY}${path}`, { cache: 'no-store' })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(err.detail ?? `HTTP ${res.status}`)
@@ -47,18 +48,36 @@ export function clarify(topic: string) {
   return post<ClarifyResponse>('/api/clarify', { topic })
 }
 
-export function postAnalyze(topic: string, service: 'quick-scan' | 'full-prism', context?: string) {
-  return post<AnalyzeResponse>('/api/analyze', { topic, service, context })
+// Owner-scoped: hits the Next.js route handler (not the transparent /proxy),
+// which injects the signed-in user's id from the session server-side.
+export async function postAnalyze(topic: string, service: 'quick-scan' | 'full-prism', context?: string) {
+  const res = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, service, context }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail ?? `HTTP ${res.status}`)
+  }
+  return res.json() as Promise<AnalyzeResponse>
 }
 
 export function getStatus(jobId: string) {
   return get<StatusResponse>(`/api/status/${jobId}`)
 }
 
-export function getReport(jobId: string) {
-  return get<Record<string, unknown>>(`/api/report/${jobId}`)
+// Owner-scoped: the Next.js handler enforces ownership before returning.
+export async function getReport(jobId: string) {
+  const res = await fetch(`/api/report/${jobId}`, { cache: 'no-store' })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail ?? `HTTP ${res.status}`)
+  }
+  return res.json() as Promise<Record<string, unknown>>
 }
 
+// Full URL — used directly in <img src> or fetch outside the proxy
 export function graphUrl(jobId: string) {
   return `${BASE}/api/graph/${jobId}`
 }

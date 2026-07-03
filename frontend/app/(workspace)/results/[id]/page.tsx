@@ -153,18 +153,18 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             Results
           </Link>
           <Link
-            href={`/results/${id}/graph`}
-            className="pb-3 text-xs font-mono text-slate hover:text-navy transition-colors flex items-center gap-1.5 border-b-2 border-transparent -mb-px"
-          >
-            <Network size={11} />
-            Graph
-          </Link>
-          <Link
             href={`/results/${id}/discussion`}
             className="pb-3 text-xs font-mono text-slate hover:text-navy transition-colors flex items-center gap-1.5 border-b-2 border-transparent -mb-px"
           >
             <MessageSquare size={11} />
             Discussion
+          </Link>
+          <Link
+            href={`/results/${id}/graph`}
+            className="pb-3 text-xs font-mono text-slate hover:text-navy transition-colors flex items-center gap-1.5 border-b-2 border-transparent -mb-px"
+          >
+            <Network size={11} />
+            Graph
           </Link>
         </div>
 

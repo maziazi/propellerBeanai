@@ -4,6 +4,7 @@ export interface MindConfig {
   key: MindKey
   label: string
   icon: string
+  image: string
   accent: string
   bg: string
   description: string
