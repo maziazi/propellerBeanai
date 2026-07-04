@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import type { DiscussionMessage } from '@/lib/types'
 import { MIND_MAP } from '@/lib/minds'
 
@@ -19,10 +20,10 @@ export function TypingIndicator({ message }: { message: DiscussionMessage }) {
     >
       <div className="shrink-0 mb-0.5">
         <div
-          className="w-8 h-8 rounded-full border flex items-center justify-center text-[10px] font-mono font-bold"
-          style={{ backgroundColor: mind.bg, borderColor: `${mind.accent}55`, color: mind.accent }}
+          className="w-8 h-8 rounded-full border overflow-hidden flex items-center justify-center"
+          style={{ backgroundColor: mind.bg, borderColor: `${mind.accent}55` }}
         >
-          {mind.label.slice(0, 2)}
+          <Image src={mind.image} alt={mind.label} width={32} height={32} className="w-full h-full object-cover" />
         </div>
       </div>
 

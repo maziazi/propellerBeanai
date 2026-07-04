@@ -51,6 +51,58 @@ async def get_report(job_id: str, owner: str | None = None):
     return data
 
 
+def _build_hats_context(data: dict) -> str:
+    lines = []
+    wh = data.get("white_hat", {})
+    facts = [f.get("claim", "") for f in wh.get("facts", [])][:3]
+    if facts:
+        lines.append("White: " + " | ".join(facts))
+    rh = data.get("red_hat", {})
+    if rh:
+        lines.append(f"Red: feels {rh.get('gut_feeling', '?')}; " + " | ".join(rh.get("emotional_concerns", [])[:2]))
+    bh = data.get("black_hat", {})
+    risks = [r.get("risk", "") for r in bh.get("risks", [])][:3]
+    if risks:
+        lines.append("Black: " + " | ".join(risks))
+    yh = data.get("yellow_hat", {})
+    opps = [o.get("opportunity", "") for o in yh.get("opportunities", [])][:3]
+    if opps:
+        lines.append("Yellow: " + " | ".join(opps))
+    gh = data.get("green_hat", {})
+    alts = gh.get("alternatives", [])[:3]
+    if alts:
+        lines.append("Green: " + " | ".join(alts))
+    blue = data.get("final_blue_hat") or data.get("initial_blue_hat") or {}
+    if blue.get("summary"):
+        lines.append("Blue: " + str(blue["summary"])[:220])
+    return "\n".join(lines)
+
+
+@router.post("/discuss/chat/{job_id}")
+async def discuss_chat(job_id: str, body: dict, owner: str | None = None):
+    """Interactive live-chat turn: user message -> short replies from a few hats."""
+    from engine import chat as chat_engine
+
+    data = storage.load(job_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    report_owner = data.get("owner")
+    if report_owner and report_owner != owner:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if data.get("status") != "done":
+        raise HTTPException(status_code=400, detail="Analysis must complete first")
+
+    message = str((body or {}).get("message", "")).strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Empty message")
+    history = (body or {}).get("history") or []
+
+    replies = await chat_engine.respond(
+        data.get("topic", ""), _build_hats_context(data), history, message,
+    )
+    return {"replies": replies}
+
+
 @router.post("/discuss/{job_id}")
 async def trigger_discussion(job_id: str, background_tasks: BackgroundTasks):
     data = storage.load(job_id)
