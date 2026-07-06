@@ -19,7 +19,7 @@ async def run_croo():
     attempt = 0
     while True:
         try:
-            from croo.provider import run
+            from croo_agent.provider import run
             await run()
             log.warning("CROO provider exited cleanly — restarting in 10s")
         except Exception as e:
