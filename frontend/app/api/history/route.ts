@@ -10,7 +10,12 @@ export async function GET() {
   if (!user) return NextResponse.json([], { status: 200 })
 
   const url = `${BACKEND}/api/history?owner=${encodeURIComponent(user.id)}`
-  const r = await fetch(url, { cache: 'no-store' })
-  const data = await r.json().catch(() => [])
-  return NextResponse.json(data, { status: r.status })
+  try {
+    const r = await fetch(url, { cache: 'no-store' })
+    const data = await r.json().catch(() => [])
+    return NextResponse.json(data, { status: r.status })
+  } catch {
+    // backend unreachable → empty history rather than a crash
+    return NextResponse.json([], { status: 200 })
+  }
 }

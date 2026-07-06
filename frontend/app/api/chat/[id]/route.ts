@@ -16,10 +16,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     return NextResponse.json({ detail: 'Invalid request' }, { status: 400 })
   }
 
-  const r = await fetch(
-    `${BACKEND}/api/discuss/chat/${encodeURIComponent(id)}?owner=${encodeURIComponent(user.id)}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
-  )
-  const data = await r.json().catch(() => ({ detail: 'Backend error' }))
-  return NextResponse.json(data, { status: r.status })
+  try {
+    const r = await fetch(
+      `${BACKEND}/api/discuss/chat/${encodeURIComponent(id)}?owner=${encodeURIComponent(user.id)}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+    )
+    const data = await r.json().catch(() => ({ detail: 'Backend returned a non-JSON response' }))
+    return NextResponse.json(data, { status: r.status })
+  } catch {
+    return NextResponse.json({ detail: `Cannot reach backend at ${BACKEND}.` }, { status: 502 })
+  }
 }

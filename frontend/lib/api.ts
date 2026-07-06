@@ -60,7 +60,13 @@ export async function postAnalyze(topic: string, service: 'quick-scan' | 'full-p
     const err = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(err.detail ?? `HTTP ${res.status}`)
   }
-  return res.json() as Promise<AnalyzeResponse>
+  const data = (await res.json()) as AnalyzeResponse
+  if (!data?.job_id) {
+    throw new Error(
+      'Backend did not return a job id. Check that NEXT_PUBLIC_API_URL points to your running backend and that the backend is reachable.',
+    )
+  }
+  return data
 }
 
 export function getStatus(jobId: string) {
