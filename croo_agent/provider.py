@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(me
 
 CROO_SDK_KEY  = os.environ["CROO_SDK_KEY"]
 CROO_BASE_URL = os.getenv("CROO_API_URL", "https://api.croo.network")
-CROO_WS_URL   = os.getenv("CROO_WS_URL",  "wss://ws.croo.network")
+CROO_WS_URL   = os.getenv("CROO_WS_URL",  "wss://api.croo.network/ws")
 SERVICE_ID    = os.getenv("CROO_SERVICE_ID", "")
 
 

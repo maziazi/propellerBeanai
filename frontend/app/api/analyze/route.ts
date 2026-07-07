@@ -22,7 +22,14 @@ export async function POST(req: Request) {
       // owner comes from the verified session, overriding anything the client sent
       body: JSON.stringify({ ...body, owner: user.id }),
     })
-    const data = await r.json().catch(() => ({ detail: 'Backend returned a non-JSON response' }))
+    const data = await r.json().catch(() => null)
+    // Diagnostic: surface which backend URL was actually used when the shape is wrong
+    if (!data || (r.ok && typeof (data as { job_id?: unknown }).job_id !== 'string')) {
+      return NextResponse.json(
+        { detail: `Backend at ${BACKEND} responded ${r.status} but without a job_id. NEXT_PUBLIC_API_URL likely points to the wrong URL (it should be your Railway https URL).` },
+        { status: 502 },
+      )
+    }
     return NextResponse.json(data, { status: r.status })
   } catch {
     return NextResponse.json(
